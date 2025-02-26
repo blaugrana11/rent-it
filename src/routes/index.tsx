@@ -7,6 +7,7 @@ type Annonce = {
   title: string;
   description: string;
   price: number;
+  image : string;
 };
 
 // Fonction pour récupérer les annonces
@@ -23,22 +24,17 @@ export default function Home() {
   const [annonces] = createResource(fetchAnnonces);
 
   return (
-    <div class="container mx-auto">
+    <div class="container mx-auto p-4">
       <h1 class="text-2xl font-bold mb-4">Liste des annonces</h1>
-      <ul>
-        {/* Vérification si les données sont disponibles */}
-        {annonces() ? (
-          annonces().map((annonce) => (
-            <li class="mb-4 p-4 border" key={annonce._id}>
-              <h2 class="text-xl">{annonce.title}</h2>
-              <p>{annonce.description}</p>
-              <p><strong>Prix:</strong> {annonce.price} €</p>
-            </li>
-          ))
-        ) : (
-          <p>Chargement des annonces...</p>
-        )}
-      </ul>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {annonces()?.map((annonce) => (
+          <div class="border p-4 rounded shadow-lg">
+            <img src={annonce.image} alt={annonce.title} class="w-full h-48 object-cover rounded" />
+            <h2 class="text-xl font-semibold mt-2">{annonce.title}</h2>
+            <p class="text-gray-700">Prix: {annonce.price} €</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
