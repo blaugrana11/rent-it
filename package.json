@@ -10,6 +10,7 @@
     "@solidjs/router": "^0.15.0",
     "@solidjs/start": "^1.1.0",
     "mongodb": "^6.13.1",
+    "multer": "^1.4.5-lts.1",
     "solid-js": "^1.9.5",
     "vinxi": "^0.5.3"
   },
