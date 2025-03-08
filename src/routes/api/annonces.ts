@@ -30,7 +30,7 @@ export async function POST(event: APIEvent) {
 
     // Sauvegarde des données dans MongoDB
     //const annonce = { title, description, price, image: `/uploads/${fileName}` };
-    const annonce = { title, description, price, image: `public/uploads/${title.toLowerCase()}.jpeg` };
+    const annonce = { title, description, price, image: `/uploads/${title.toLowerCase()}.jpeg` };
     const db = client.db(dbName);
     const collection = db.collection("ads");
     const result = await collection.insertOne(annonce);
