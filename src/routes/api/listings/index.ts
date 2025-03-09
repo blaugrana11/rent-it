@@ -1,5 +1,5 @@
 import { type APIEvent } from "@solidjs/start/server";
-import { getListings, createListingAction } from "~/lib/listing";
+import { getListings, createListing } from "~/lib/listing";
 
 
 export async function GET(event: APIEvent) {
@@ -26,7 +26,7 @@ export async function POST(event: APIEvent) {
     console.log("POST /api/listings");
     const formData = await event.request.formData();
     console.log("formData", formData);
-    const result = await createListingAction(formData);
+    const result = await createListing(formData);
     return new Response(JSON.stringify(result), {
       status: 201,
       headers: {
