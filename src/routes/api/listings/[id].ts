@@ -34,15 +34,25 @@ export async function PUT(event: APIEvent) {
       status: 400,
       headers: { "Content-Type": "application/json" }
     });
-    
+
+    const existingListing = await getListingById(id);
+    if (!existingListing) {
+      return new Response(JSON.stringify({ error: "Annonce non trouvée" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  
     const formData = await event.request.formData();
+    const images = formData.getAll("images");
     const updateData = {
-      title: formData.get("title") ? String(formData.get("title")) : undefined,
-      description: formData.get("description") ? String(formData.get("description")) : undefined,
-      price: Number(formData.get("price")),
-      condition: formData.get("condition") ? String(formData.get("condition")) : undefined,
-      images: formData.getAll("images").map((img) => String(img)), // Convertir chaque image en string
+      title: formData.has("title") ? String(formData.get("title")) : existingListing.title,
+      description: formData.has("description") ? String(formData.get("description")) : existingListing.description,
+      price: formData.has("price") ? Number(formData.get("price")) : existingListing.price,
+      condition: formData.has("condition") ? String(formData.get("condition")) : existingListing.condition,
+      images: images.length > 0 ? images.map((img) => String(img)) : existingListing.images,
     };
+
     
     const result = await updateListing({ id: id, ...updateData });
     
