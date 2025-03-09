@@ -20,9 +20,9 @@ export const getListings = query(async () => {
 }, "getListings");
 
 // ✅ Récupérer une annonce par son ID
-export const getListingById = query(async (id: number) => {
+export const getListingById = query(async (id:string) => {
   "use server";
-  const objectId = new ObjectId(id.toString()); // Assurer que `id` est sous forme de string
+  const objectId = new ObjectId(id); // Assurer que `id` est sous forme de string
   return await db_ads.findOne({ _id: objectId });
 }, "getListingById");
 
@@ -64,7 +64,7 @@ export const updateListing = async ({
     id,
     ...data
   }: {
-    id: number;
+    id: string;
     title?: string;
     description?: string;
     price?: number;
@@ -72,18 +72,19 @@ export const updateListing = async ({
     images?: string[];
   }) => {
     "use server";
-    const objectId = new ObjectId(id.toString()); // Convertir `id` en ObjectId
+    const objectId = new ObjectId(id); // Convertir `id` en ObjectId
     return await db_ads.updateOne({ _id: objectId }, { $set: data }); // Utiliser ObjectId
   };
 
 export const updateListingAction = action(updateListing);
 
 // ✅ Supprimer une annonce
-export const deleteListing = async (id: number) => {
+export const deleteListing = async (id: string) => {
   "use server";
-  const objectId = new ObjectId(id.toString()); // Convertir `id` en ObjectId
+  console.log("ID reçu pour suppression:", id);
+  const objectId = new ObjectId(id); // Convertir `id` en ObjectId
   const listing = await db_ads.findOne({ _id: objectId });
-
+  
   if (listing?.images) {
     for (const imgPath of listing.images) {
       const filePath = path.join(process.cwd(), "public", imgPath);

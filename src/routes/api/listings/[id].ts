@@ -1,5 +1,5 @@
 import type { APIEvent } from '@solidjs/start/server'; 
-import { getListingById, updateListingAction, deleteListingAction } from "~/lib/listing";  
+import { getListingById, updateListing, deleteListing } from "~/lib/listing";  
 
 export async function GET(event: APIEvent) {
   try {
@@ -9,7 +9,7 @@ export async function GET(event: APIEvent) {
       headers: { "Content-Type": "application/json" }
     });
     
-    const listing = await getListingById(Number(id));
+    const listing = await getListingById(id);
     if (!listing) return new Response(JSON.stringify({ error: "Annonce non trouvée" }), {
       status: 404,
       headers: { "Content-Type": "application/json" }
@@ -29,6 +29,7 @@ export async function GET(event: APIEvent) {
 export async function PUT(event: APIEvent) {
   try {
     const id = event.params.id;
+    console.log("PUT /api/listings/:id", id);
     if (!id) return new Response(JSON.stringify({ error: "ID requis" }), {
       status: 400,
       headers: { "Content-Type": "application/json" }
@@ -43,7 +44,7 @@ export async function PUT(event: APIEvent) {
       images: formData.getAll("images").map((img) => String(img)), // Convertir chaque image en string
     };
     
-    const result = await updateListingAction({ id: Number(id), ...updateData });
+    const result = await updateListing({ id: id, ...updateData });
     
     return new Response(JSON.stringify({ message: "Annonce mise à jour", result }), {
       headers: { "Content-Type": "application/json" }
@@ -63,9 +64,8 @@ export async function DELETE(event: APIEvent) {
       status: 400,
       headers: { "Content-Type": "application/json" }
     });
-    
-    await deleteListingAction(Number(id));
-    
+    console.log("DELETE /api/listings/:id", id);
+    await deleteListing(id);
     return new Response(JSON.stringify({ message: "Annonce supprimée" }), {
       headers: { "Content-Type": "application/json" }
     });
