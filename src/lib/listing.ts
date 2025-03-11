@@ -30,8 +30,19 @@ export const getListingById = query(async (id:string) => {
 export const createListing = async (form: FormData) => {
   "use server";
 
+  // 1️⃣ **Extraire les données du formulaire sans traiter les images**
+  const listingData = {
+    title: form.get("title"),
+    description: form.get("description"),
+    price: Number(form.get("price")),
+    condition: form.get("condition"),
+    images: [], // Vide pour l'instant
+  };
 
-  // Traitement des images
+  // 2️⃣ **Valider les données avec Zod AVANT d'enregistrer les images**
+  const validatedListing = listingSchema.parse(listingData);
+
+  // 3️⃣ **Si la validation réussit, on traite les images**
   const imageFiles = form.getAll("images") as File[];
   const imagePaths: string[] = [];
 
@@ -42,60 +53,61 @@ export const createListing = async (form: FormData) => {
     const filePath = path.join(process.cwd(), "public/uploads", fileName);
 
     await fs.writeFile(filePath, buffer);
-    imagePaths.push(`/uploads/${fileName}`); // On stocke seulement le chemin relatif
+    imagePaths.push(`/uploads/${fileName}`);
   }
 
-  // Validation avec Zod
-  const listing = listingSchema.parse({
-    title: form.get("title"),
-    description: form.get("description"),
-    price: Number(form.get("price")),
-    condition: form.get("condition"),
-    images: imagePaths,
-  });
+  validatedListing.images = imagePaths; // Ajouter les images validées
 
-  const result = await db_ads.insertOne(listing); // `insertOne()` remplace `create()`
+  // 4️⃣ **Insertion dans la base de données**
+  const result = await db_ads.insertOne(validatedListing);
   return { insertedId: result.insertedId };
 };
+
 export const createListingAction = action(createListing);
+
 
 // ✅ Mettre à jour une annonce
 export const updateListing = async (id: string, form: FormData) => {
   "use server";
 
-  const objectId = new ObjectId(id); // Convertir `id` en ObjectId
+  const objectId = new ObjectId(id);
   const existingListing = await db_ads.findOne({ _id: objectId });
   if (!existingListing) throw new Error("Annonce non trouvée");
 
-  // ✅ Traitement des images (comme dans `createListing`)
-  const imageFiles = form.getAll("images") as File[];
-  let imagePaths = existingListing.images || []; // Conserver les anciennes images
+  // 1️⃣ **Extraire les champs texte du formulaire (sans images)**
+  const updateData = {
+    title: form.has("title") ? String(form.get("title")) : existingListing.title,
+    description: form.has("description") ? String(form.get("description")) : existingListing.description,
+    price: form.has("price") ? Number(form.get("price")) : existingListing.price,
+    condition: form.has("condition") ? String(form.get("condition")) : existingListing.condition,
+    images: existingListing.images, // Par défaut, on garde les anciennes images
+  };
 
+  // 2️⃣ **Valider les données AVANT d'uploader les images**
+  const validatedData = listingSchema.parse(updateData);
+
+  // 3️⃣ **Gérer les images UNIQUEMENT si la validation réussit**
+  const imageFiles = form.getAll("images") as File[];
   if (imageFiles.length > 0) {
-    imagePaths = []; // Réinitialiser si de nouvelles images sont ajoutées
+    const imagePaths: string[] = [];
+    
     for (const file of imageFiles) {
       const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
       const fileName = `${Date.now()}-${file.name}`;
       const filePath = path.join(process.cwd(), "public/uploads", fileName);
+      
       await fs.writeFile(filePath, buffer);
       imagePaths.push(`/uploads/${fileName}`);
     }
+
+    validatedData.images = imagePaths; // Remplacer les images uniquement après validation
   }
 
-  // ✅ Valider avec Zod (en gardant les valeurs existantes)
-  const updateData = listingSchema.parse({
-    title: form.has("title") ? String(form.get("title")) : existingListing.title,
-    description: form.has("description") ? String(form.get("description")) : existingListing.description,
-    price: form.has("price") ? Number(form.get("price")) : existingListing.price,
-    condition: form.has("condition") ? String(form.get("condition")) : existingListing.condition,
-    images: imagePaths,
-  });
+  // 4️⃣ **Mettre à jour l'annonce dans la base de données**
+  await db_ads.updateOne({ _id: objectId }, { $set: validatedData });
 
-  // ✅ Mise à jour dans la BDD
-  await db_ads.updateOne({ _id: objectId }, { $set: updateData });
-
-  return { message: "Annonce mise à jour", updateData };
+  return { message: "Annonce mise à jour", updateData: validatedData };
 };
 
 export const updateListingAction = action(updateListing);
