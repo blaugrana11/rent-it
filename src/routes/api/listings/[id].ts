@@ -35,26 +35,9 @@ export async function PUT(event: APIEvent) {
       headers: { "Content-Type": "application/json" }
     });
 
-    const existingListing = await getListingById(id);
-    if (!existingListing) {
-      return new Response(JSON.stringify({ error: "Annonce non trouvée" }), {
-        status: 404,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-  
     const formData = await event.request.formData();
-    const images = formData.getAll("images");
-    const updateData = {
-      title: formData.has("title") ? String(formData.get("title")) : existingListing.title,
-      description: formData.has("description") ? String(formData.get("description")) : existingListing.description,
-      price: formData.has("price") ? Number(formData.get("price")) : existingListing.price,
-      condition: formData.has("condition") ? String(formData.get("condition")) : existingListing.condition,
-      images: images.length > 0 ? images.map((img) => String(img)) : existingListing.images,
-    };
 
-    
-    const result = await updateListing({ id: id, ...updateData });
+    const result = await updateListing(id, formData);
     
     return new Response(JSON.stringify({ message: "Annonce mise à jour", result }), {
       headers: { "Content-Type": "application/json" }

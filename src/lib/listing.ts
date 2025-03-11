@@ -60,21 +60,43 @@ export const createListing = async (form: FormData) => {
 export const createListingAction = action(createListing);
 
 // ✅ Mettre à jour une annonce
-export const updateListing = async ({
-    id,
-    ...data
-  }: {
-    id: string;
-    title?: string;
-    description?: string;
-    price?: number;
-    condition?: string;
-    images?: string[];
-  }) => {
-    "use server";
-    const objectId = new ObjectId(id); // Convertir `id` en ObjectId
-    return await db_ads.updateOne({ _id: objectId }, { $set: data }); // Utiliser ObjectId
-  };
+export const updateListing = async (id: string, form: FormData) => {
+  "use server";
+
+  const objectId = new ObjectId(id); // Convertir `id` en ObjectId
+  const existingListing = await db_ads.findOne({ _id: objectId });
+  if (!existingListing) throw new Error("Annonce non trouvée");
+
+  // ✅ Traitement des images (comme dans `createListing`)
+  const imageFiles = form.getAll("images") as File[];
+  let imagePaths = existingListing.images || []; // Conserver les anciennes images
+
+  if (imageFiles.length > 0) {
+    imagePaths = []; // Réinitialiser si de nouvelles images sont ajoutées
+    for (const file of imageFiles) {
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const fileName = `${Date.now()}-${file.name}`;
+      const filePath = path.join(process.cwd(), "public/uploads", fileName);
+      await fs.writeFile(filePath, buffer);
+      imagePaths.push(`/uploads/${fileName}`);
+    }
+  }
+
+  // ✅ Valider avec Zod (en gardant les valeurs existantes)
+  const updateData = listingSchema.parse({
+    title: form.has("title") ? String(form.get("title")) : existingListing.title,
+    description: form.has("description") ? String(form.get("description")) : existingListing.description,
+    price: form.has("price") ? Number(form.get("price")) : existingListing.price,
+    condition: form.has("condition") ? String(form.get("condition")) : existingListing.condition,
+    images: imagePaths,
+  });
+
+  // ✅ Mise à jour dans la BDD
+  await db_ads.updateOne({ _id: objectId }, { $set: updateData });
+
+  return { message: "Annonce mise à jour", updateData };
+};
 
 export const updateListingAction = action(updateListing);
 
