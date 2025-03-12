@@ -13,24 +13,24 @@ const listingSchema = z.object({
   images: z.array(z.string()).optional(), // Images sous forme d'URL
 });
 
-// ✅ Récupérer toutes les annonces
+// Récupérer toutes les annonces
 export const getListings = query(async () => {
   "use server";
   return await db_ads.find().toArray(); // Convertir le curseur en tableau
 }, "getListings");
 
-// ✅ Récupérer une annonce par son ID
+// Récupérer une annonce par son ID
 export const getListingById = query(async (id:string) => {
   "use server";
   const objectId = new ObjectId(id); // Assurer que `id` est sous forme de string
   return await db_ads.findOne({ _id: objectId });
 }, "getListingById");
 
-// ✅ Ajouter une annonce
+// Ajouter une annonce
 export const createListing = async (form: FormData) => {
   "use server";
 
-  // 1️⃣ **Extraire les données du formulaire sans traiter les images**
+  // Extraire les données du formulaire sans traiter les images
   const listingData = {
     title: form.get("title"),
     description: form.get("description"),
@@ -39,10 +39,10 @@ export const createListing = async (form: FormData) => {
     images: [], // Vide pour l'instant
   };
 
-  // 2️⃣ **Valider les données avec Zod AVANT d'enregistrer les images**
+  //Valider les données avec Zod AVANT d'enregistrer les images
   const validatedListing = listingSchema.parse(listingData);
 
-  // 3️⃣ **Si la validation réussit, on traite les images**
+  //Si la validation réussit, on traite les images
   const imageFiles = form.getAll("images") as File[];
   const imagePaths: string[] = [];
 
@@ -58,7 +58,7 @@ export const createListing = async (form: FormData) => {
 
   validatedListing.images = imagePaths; // Ajouter les images validées
 
-  // 4️⃣ **Insertion dans la base de données**
+  //Insertion dans la base de données
   const result = await db_ads.insertOne(validatedListing);
   return { insertedId: result.insertedId };
 };
@@ -66,7 +66,7 @@ export const createListing = async (form: FormData) => {
 export const createListingAction = action(createListing);
 
 
-// ✅ Mettre à jour une annonce
+// Mettre à jour une annonce
 export const updateListing = async (id: string, form: FormData) => {
   "use server";
 
@@ -74,7 +74,7 @@ export const updateListing = async (id: string, form: FormData) => {
   const existingListing = await db_ads.findOne({ _id: objectId });
   if (!existingListing) throw new Error("Annonce non trouvée");
 
-  // 1️⃣ **Extraire les champs texte du formulaire (sans images)**
+  // Extraire les champs texte du formulaire (sans images)
   const updateData = {
     title: form.has("title") ? String(form.get("title")) : existingListing.title,
     description: form.has("description") ? String(form.get("description")) : existingListing.description,
@@ -83,10 +83,10 @@ export const updateListing = async (id: string, form: FormData) => {
     images: existingListing.images, // Par défaut, on garde les anciennes images
   };
 
-  // 2️⃣ **Valider les données AVANT d'uploader les images**
+  //Valider les données AVANT d'uploader les images
   const validatedData = listingSchema.parse(updateData);
 
-  // 3️⃣ **Gérer les images UNIQUEMENT si la validation réussit**
+  //Gérer les images UNIQUEMENT si la validation réussit
   const imageFiles = form.getAll("images") as File[];
   if (imageFiles.length > 0) {
     const imagePaths: string[] = [];
@@ -104,7 +104,7 @@ export const updateListing = async (id: string, form: FormData) => {
     validatedData.images = imagePaths; // Remplacer les images uniquement après validation
   }
 
-  // 4️⃣ **Mettre à jour l'annonce dans la base de données**
+  // Mettre à jour l'annonce dans la base de données
   await db_ads.updateOne({ _id: objectId }, { $set: validatedData });
 
   return { message: "Annonce mise à jour", updateData: validatedData };
@@ -112,7 +112,7 @@ export const updateListing = async (id: string, form: FormData) => {
 
 export const updateListingAction = action(updateListing);
 
-// ✅ Supprimer une annonce
+// Supprimer une annonce
 export const deleteListing = async (id: string) => {
   "use server";
   console.log("ID reçu pour suppression:", id);
