@@ -8,7 +8,7 @@ import path from "path";
 const listingSchema = z.object({
   title: z.string().min(3, "Le titre doit contenir au moins 3 caractères"),
   description: z.string().min(10, "La description est trop courte"),
-  price: z.number().min(0, "Le prix doit être positif"),
+  price: z.coerce.number().min(0, "Le prix doit être positif"),
   condition: z.enum(["neuf", "comme neuf", "bon état", "état moyen", "mauvais état"]),
   images: z.array(z.string()).optional(), // Images sous forme d'URL
 });
@@ -34,7 +34,7 @@ export const createListing = async (form: FormData) => {
   const listingData = {
     title: form.get("title"),
     description: form.get("description"),
-    price: Number(form.get("price")),
+    price: form.get("price"),
     condition: form.get("condition"),
     images: [], // Vide pour l'instant
   };
