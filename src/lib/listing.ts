@@ -16,7 +16,7 @@ const listingSchema = z.object({
 // Récupérer toutes les annonces
 export const getListings = query(async () => {
   "use server";
-  return await db_ads.find().toArray(); // Convertir le curseur en tableau
+  return listingSchema.array().parse(await db_ads.find().toArray())
 }, "getListings");
 
 // Récupérer une annonce par son ID
