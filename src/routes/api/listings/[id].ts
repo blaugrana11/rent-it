@@ -1,5 +1,6 @@
 import type { APIEvent } from '@solidjs/start/server'; 
 import { getListingById, updateListing, deleteListing } from "~/lib/listing";  
+import { useParams } from '@solidjs/router'
 
 export async function GET(event: APIEvent) {
   try {

@@ -9,14 +9,30 @@ const listingSchema = z.object({
   title: z.string().min(3, "Le titre doit contenir au moins 3 caractères"),
   description: z.string().min(10, "La description est trop courte"),
   price: z.coerce.number().min(0, "Le prix doit être positif"),
-  condition: z.enum(["neuf", "comme neuf", "bon état", "état moyen", "mauvais état"]),
-  images: z.array(z.string()).optional(), // Images sous forme d'URL
-});
+  condition: z.enum(["neuf", "comme neuf", "bon état", "état moyen", "mauvais état"]).optional(),
+  images: z.union([
+    z.array(z.string()),
+    z.string().transform(value => [value]) // Transforme une chaîne unique en tableau
+  ]).optional(),
+}); // Images sous forme d'URL
 
-// Récupérer toutes les annonces
 export const getListings = query(async () => {
   "use server";
-  return listingSchema.array().parse(await db_ads.find().toArray())
+  
+  try {
+    const rawData = await db_ads.find().toArray();
+    return listingSchema.array().parse(rawData);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      console.error("Erreur de validation Zod:", error.errors);
+      // Vous pouvez retourner une erreur plus conviviale ici
+      throw new Error("Données invalides dans la base de données");
+    }
+    
+    // Pour les autres types d'erreurs
+    console.error("Erreur lors de la récupération des annonces:", error);
+    throw error;
+  }
 }, "getListings");
 
 // Récupérer une annonce par son ID
