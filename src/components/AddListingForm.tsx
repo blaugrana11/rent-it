@@ -31,7 +31,7 @@ function AddListingForm() {
     <form onSubmit={handleSubmit} class="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-lg">
       <h2 class="text-2xl font-bold mb-6 text-center">Ajouter une annonce</h2>
       <div class="mb-4">
-        <label htmlFor="title" class="block text-sm font-medium text-gray-700">Titre</label>
+        <label for="title" class="block text-sm font-medium text-gray-700">Titre</label>
         <input
           id="title"
           type="text"
@@ -43,7 +43,7 @@ function AddListingForm() {
       </div>
 
       <div class="mb-4">
-        <label htmlFor="description" class="block text-sm font-medium text-gray-700">Description</label>
+        <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
         <textarea
           id="description"
           value={description()}
@@ -54,7 +54,7 @@ function AddListingForm() {
       </div>
 
       <div class="mb-4">
-        <label htmlFor="price" class="block text-sm font-medium text-gray-700">Prix</label>
+        <label for="price" class="block text-sm font-medium text-gray-700">Prix</label>
         <input
           id="price"
           type="number"
@@ -66,7 +66,7 @@ function AddListingForm() {
       </div>
 
       <div class="mb-4">
-        <label htmlFor="condition" class="block text-sm font-medium text-gray-700">État</label>
+        <label for="condition" class="block text-sm font-medium text-gray-700">État</label>
         <select
           id="condition"
           value={condition()}
@@ -82,7 +82,7 @@ function AddListingForm() {
       </div>
 
       <div class="mb-4">
-        <label htmlFor="images" class="block text-sm font-medium text-gray-700">Images</label>
+        <label for="images" class="block text-sm font-medium text-gray-700">Images</label>
         <input
           id="images"
           type="file"
