@@ -188,7 +188,7 @@ function AddListingForm() {
                   onInput={(e) => setPrice(Number(e.target.value))}
                   placeholder="0.00"
                   min="0"
-                  step="0.01"
+                  step="any"
                   required
                   class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 transition"
                 />
