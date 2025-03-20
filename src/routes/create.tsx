@@ -3,11 +3,19 @@ import AddListingForm from "~/components/AddListingForm";
 
 export default function CreatePage() {
   return (
-    <div class="min-h-screen flex items-center justify-center bg-gray-50 py-10">
-      <div class="bg-white p-8 rounded-lg shadow-lg max-w-2xl w-full">
-        <h1 class="text-3xl font-semibold text-center text-gray-800 mb-8">Créer une annonce</h1>
+    <div class="min-h-screen flex items-start justify-center bg-white-50 py-10">
+      <div class="w-full max-w-2xl">
+        <h1 class="text-3xl font-semibold text-center text-[#600AFF] mb-8  mt-6">
+          Place an Ad
+        </h1>
         <AddListingForm />
       </div>
     </div>
   );
 }
+
+
+
+
+
+
