@@ -1,6 +1,6 @@
 import { db_ads } from "~/lib/db";
 import { action, query } from "@solidjs/router";
-import { z } from "zod";
+import { number, z } from "zod";
 import { ObjectId } from "mongodb";
 import fs from "fs/promises";
 import path from "path";
@@ -45,19 +45,20 @@ export const getListingById = query(async (id:string) => {
 // Ajouter une annonce
 export const createListing = async (form: FormData) => {
   "use server";
-
+  try {
+  console.log("Données reçues pour création:", form);
   // Extraire les données du formulaire sans traiter les images
   const listingData = {
     title: form.get("title"),
     description: form.get("description"),
-    price: form.get("price"),
+    price: Number(form.get("price")),
     condition: form.get("condition"),
     images: [], // Vide pour l'instant
   };
-
+  console.log("Données extraites du formulaire:", listingData);
   //Valider les données avec Zod AVANT d'enregistrer les images
   const validatedListing = listingSchema.parse(listingData);
-
+  console.log("Données validées:", validatedListing);
   //Si la validation réussit, on traite les images
   const imageFiles = form.getAll("images") as File[];
   const imagePaths: string[] = [];
@@ -77,9 +78,13 @@ export const createListing = async (form: FormData) => {
   //Insertion dans la base de données
   const result = await db_ads.insertOne(validatedListing);
   return { insertedId: result.insertedId };
+} catch (error) {
+  console.error("Erreur lors de la création de l'annonce:", error);
+  throw error;
 };
-
+}
 export const createListingAction = action(createListing);
+//export const createListingAction = action(createListing, "createListing");
 
 
 // Mettre à jour une annonce

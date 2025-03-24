@@ -1,4 +1,5 @@
 import { createSignal, createEffect, For, Show } from "solid-js";
+import { useSubmissions } from "@solidjs/router";
 import { createListingAction } from "~/lib/listing";
 
 function AddListingForm() {
@@ -76,49 +77,52 @@ function AddListingForm() {
     setPreviewUrls(prev => prev.filter(item => item.id !== id));
   };
 
-  const handleSubmit = async (e: Event) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  // const handleSubmit = async (e: Event) => {
+  //   e.preventDefault();
+  //   setIsSubmitting(true);
     
-    try {
-      const formData = new FormData();
-      formData.append("title", title());
-      formData.append("description", description());
-      formData.append("price", price().toString());
-      formData.append("condition", condition());
+  //   try {
+  //     const formData = new FormData();
+  //     formData.append("title", title());
+  //     formData.append("description", description());
+  //     formData.append("price", price().toString());
+  //     formData.append("condition", condition());
 
-      // Add all image files to formData
-      imageFiles().forEach((image) => {
-        formData.append("images", image);
-      });
+  //     // Add all image files to formData
+  //     imageFiles().forEach((image) => {
+  //       formData.append("images", image);
+  //     });
+  //     console.log("FormData envoyé :", Object.fromEntries(formData.entries()));
 
-      await createListingAction(formData);
+  //     await createListingAction(formData);
       
-      // Reset form after successful submission
-      setTitle("");
-      setDescription("");
-      setPrice(0);
-      setCondition("neuf");
+  //     console.log("Annonce créée avec succès !");
+  //     // Reset form after successful submission
+  //     setTitle("");
+  //     setDescription("");
+  //     setPrice(0);
+  //     setCondition("neuf");
       
-      // Clean up object URLs before resetting
-      previewUrls().forEach(item => URL.revokeObjectURL(item.url));
-      setImageFiles([]);
-      setPreviewUrls([]);
+  //     // Clean up object URLs before resetting
+  //     previewUrls().forEach(item => URL.revokeObjectURL(item.url));
+  //     setImageFiles([]);
+  //     setPreviewUrls([]);
       
-      // Show success notification
-      const successMessage = document.getElementById("success-message");
-      if (successMessage) {
-        successMessage.classList.remove("hidden");
-        setTimeout(() => {
-          successMessage.classList.add("hidden");
-        }, 5000);
-      }
-    } catch (error) {
-      console.error("Error creating listing:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  //     // Show success notification
+  //     const successMessage = document.getElementById("success-message");
+  //     if (successMessage) {
+  //       successMessage.classList.remove("hidden");
+  //       setTimeout(() => {
+  //         successMessage.classList.add("hidden");
+  //       }, 5000);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error creating listing:", error);
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+  // };
+  const creatingListing = useSubmissions(createListingAction);
 
   return (
     <div class="max-w-4xl mx-auto my-8 px-4">
@@ -136,7 +140,7 @@ function AddListingForm() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} class="bg-white rounded-xl shadow-xl overflow-hidden">
+      <form /*onSubmit={handleSubmit}*/ action={createListingAction} method="post" class="bg-white rounded-xl shadow-xl overflow-hidden">
         {/* Header */}
         <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6">
           <h2 class="text-2xl font-bold text-white text-left">What would you like to rent out ?</h2>
@@ -274,11 +278,12 @@ function AddListingForm() {
           {/* Submit button */}
           <div class="text-center">
             <button
-              type="submit"
-              disabled={isSubmitting()}
-              class="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg shadow-md hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition disabled:opacity-70"
-            >
-              {isSubmitting() ? "In progress..." : "Publish ad"}
+              type="submit" 
+              /*disabled={isSubmitting()}*/
+              class="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg shadow-md hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition disabled:opacity-70">
+              {creatingListing.pending ? "aaaaaaaaazin Progress ..." : "aaaaaaaaPublish Ad"} 
+              {/*{isSubmitting() ? "In progress..." : "Publish ad"}*/}
+              
             </button>
           </div>
         </div>
