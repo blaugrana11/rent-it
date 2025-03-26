@@ -61,6 +61,7 @@ export const createListing = async (form: FormData) => {
   console.log("Données validées:", validatedListing);
   //Si la validation réussit, on traite les images
   const imageFiles = form.getAll("images") as File[];
+  console.log("Images reçues:", imageFiles);
   const imagePaths: string[] = [];
 
   for (const file of imageFiles) {
@@ -79,6 +80,7 @@ export const createListing = async (form: FormData) => {
   const result = await db_ads.insertOne(validatedListing);
   return { insertedId: result.insertedId };
 } catch (error) {
+  return { error: String(error) };
   console.error("Erreur lors de la création de l'annonce:", error);
   throw error;
 };
