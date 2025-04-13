@@ -1,7 +1,7 @@
 // src/components/LoginForm.tsx
 import { createSignal } from "solid-js"
-import { log } from "vinxi/dist/types/lib/logger"
 import { login } from "~/lib/auth/user"
+import { Field } from "~/components/Field";
 
 const loginAction = login
 
@@ -14,35 +14,29 @@ export default function LoginForm() {
       action={loginAction}
       class="space-y-4 bg-white p-6 rounded shadow max-w-md mx-auto"
     >
-      <h2 class="text-2xl font-semibold">Connexion</h2>
+      <h2 class="text-2xl font-semibold">Connection</h2>
 
       {error() && <p class="text-red-500">{error()}</p>}
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Email</label>
-        <input
-          name="email"
-          type="email"
-          required
-          class="w-full mt-1 border p-2 rounded"
-        />
-      </div>
+      <Field
+        name="email"
+        label="E-mail address"
+        type="email"
+        placeholder="example@domain.com"
+      />
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Mot de passe</label>
-        <input
-          name="password"
-          type="password"
-          required
-          class="w-full mt-1 border p-2 rounded"
-        />
-      </div>
+      <Field
+        name="password"
+        label="Password"
+        type="password"
+        placeholder="••••••••"
+      />
 
       <button
         type="submit"
         class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
       >
-        Se connecter
+        Log in
       </button>
     </form>
   )
