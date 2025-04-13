@@ -1,7 +1,7 @@
 // src/lib/auth/user.ts
 
 import bcrypt from 'bcryptjs'
-import { action, query } from "@solidjs/router";
+import { action, query, redirect } from "@solidjs/router";
 import { userSchema } from './schema'
 import { getSession } from './session'
 import { db_users } from '~/lib/db'
@@ -32,6 +32,7 @@ export const login = action(async (formData: FormData) => {
   
     const session = await getSession()
     await session.update({ email })
+    return redirect("/")
   }, "login")
   
 
@@ -39,6 +40,7 @@ export const logout = action(async () => {
     'use server'
     const session = await getSession()
     await session.clear()
+    return redirect("/login")
   })
 
   export const getUser = query(async () => {
