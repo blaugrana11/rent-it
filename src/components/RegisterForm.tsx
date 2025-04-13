@@ -1,7 +1,7 @@
 // src/components/RegisterForm.tsx
 import { createSignal } from "solid-js";
 import { register } from "~/lib/auth/user";
-import { Field } from "~/components/Field"; // On suppose que tu extrais le Field dans un fichier
+import { Field } from "~/components/Field";
 
 export default function RegisterForm() {
   const [error, setError] = createSignal("");
@@ -12,7 +12,7 @@ export default function RegisterForm() {
       action={register}
       class="max-w-md mx-auto bg-white p-6 rounded-lg shadow space-y-6"
     >
-      <h2 class="text-2xl font-bold text-center text-gray-800">Créer un compte</h2>
+      <h2 class="text-2xl font-bold text-center text-gray-800">Create an account</h2>
 
       {error() && (
         <div class="text-red-600 bg-red-100 p-2 rounded text-sm">
@@ -22,14 +22,14 @@ export default function RegisterForm() {
 
       <Field
         name="email"
-        label="Adresse e-mail"
+        label="E-mail address"
         type="email"
-        placeholder="exemple@domaine.com"
+        placeholder="exemple@domain.com"
       />
 
       <Field
         name="password"
-        label="Mot de passe"
+        label="Password"
         type="password"
         placeholder="••••••••"
       />
@@ -38,7 +38,7 @@ export default function RegisterForm() {
         type="submit"
         class="w-full py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition"
       >
-        S’inscrire
+        Register
       </button>
     </form>
   );

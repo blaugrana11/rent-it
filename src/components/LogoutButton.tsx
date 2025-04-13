@@ -5,7 +5,7 @@ export default function LogoutButton() {
   return (
     <form method="post" action={logout}>
       <button class="text-red-600 hover:underline" type="submit">
-        Se déconnecter
+        Log out
       </button>
     </form>
   )

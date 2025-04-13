@@ -1,7 +1,12 @@
-import { useLocation } from "@solidjs/router";
+//src/components/Nav.tsx
+import { useLocation, createAsync } from "@solidjs/router";
+import LogoutButton from "~/components/LogoutButton";
+import { getUser } from "~/lib/auth/user";
+import { Show } from "solid-js"
 
 export default function Nav() {
   const location = useLocation();
+  const user = createAsync(() => getUser());
   const active = (path: string) =>
     path == location.pathname ? "border-indigo-500" : "border-transparent hover:border-indigo-400";
   
@@ -43,19 +48,29 @@ export default function Nav() {
               Place an Ad
             </a>
 
-            <a 
-              href="/login" 
-              class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-indigo-600 bg-white hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out"
-            >
-              Log in
-            </a>
+            <Show when={user()}>
+              {/* Si connecté */}
+              <span class="text-white hidden md:inline">Bonjour {user()?.email}</span>
+              <LogoutButton />
+            </Show>
 
-            <a 
-              href="/register" 
-              class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-indigo-600 bg-white hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out"
-            >
-              Register
-            </a>
+            <Show when={!user()}>
+              {/* Si pas connecté */}
+              <a
+                href="/login"
+                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-indigo-600 bg-white hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out"
+              >
+                Log in
+              </a>
+
+              <a
+                href="/register"
+                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-indigo-600 bg-white hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out"
+              >
+                Register
+              </a>
+            </Show>
+
           </div>
 
         </div>
