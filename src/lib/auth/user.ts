@@ -1,14 +1,13 @@
 // src/lib/auth/user.ts
 
-'use server'
-
 import bcrypt from 'bcryptjs'
 import { action, query } from "@solidjs/router";
 import { userSchema } from './schema'
 import { getSession } from './session'
-import { db_users } from '~/lib/db' // adapte à ta config mongo
+import { db_users } from '~/lib/db'
 
 export const register = action(async (form: FormData) => {
+    'use server'
     const { email, password } = userSchema.parse({
       email: form.get("email"),
       password: form.get("password"),
@@ -19,8 +18,8 @@ export const register = action(async (form: FormData) => {
   }, "register");
 
   
-// lib/auth/user.ts
 export const login = action(async (formData: FormData) => {
+  'use server'
     const { email, password } = userSchema.parse({
       email: formData.get("email"),
       password: formData.get("password"),
@@ -43,6 +42,7 @@ export const logout = action(async () => {
   })
 
   export const getUser = query(async () => {
+    'use server'
   try {
     const session = await getSession()
     if (!session.data.email) return null
