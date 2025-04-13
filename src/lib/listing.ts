@@ -81,9 +81,9 @@ export const createListing = async (form: FormData) => {
   return { insertedId: result.insertedId };
 } catch (error) {
   return { error: String(error) };
-  console.error("Erreur lors de la création de l'annonce:", error);
-  throw error;
-};
+  // console.error("Erreur lors de la création de l'annonce:", error);
+  // throw error;
+  };
 }
 export const createListingAction = action(createListing);
 //export const createListingAction = action(createListing, "createListing");

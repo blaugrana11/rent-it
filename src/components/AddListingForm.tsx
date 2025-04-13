@@ -40,6 +40,13 @@ function AddListingForm() {
     setPreviewUrls([...previewUrls(), ...newPreviews]);
   };
 
+
+  const handleInputChange = (e: Event) => {
+    const fileInput = e.target as HTMLInputElement;
+    handleFiles(fileInput.files);
+    //fileInput.value = ""; // Reset input to allow selecting the same file again
+  };
+
   const handleDragOver = (e: DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
@@ -54,8 +61,21 @@ function AddListingForm() {
     e.preventDefault();
     setIsDragging(false);
     if (e.dataTransfer) {
-      handleFiles(e.dataTransfer.files);
-      fileInput!.files = e.dataTransfer.files
+      // Créer un nouvel objet DataTransfer
+      const dataTransfer = new DataTransfer();
+      
+      // Filtrer et ajouter uniquement les fichiers image
+      Array.from(e.dataTransfer.files)
+        .filter(file => file.type.startsWith('image/'))
+        .forEach(file => dataTransfer.items.add(file));
+      
+      // Vérifiez que fileInput existe avant de l'utiliser
+      if (fileInput!) {
+        fileInput.files = dataTransfer.files;
+        
+        // Appeler handleFiles pour mettre à jour l'état
+        handleFiles(dataTransfer.files);
+      }
     }
   };
 
@@ -141,7 +161,12 @@ function AddListingForm() {
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
-              class={`border-2 border-dashed rounded-lg p-6 text-center transition-colors duration-200 ${isDragging() ? "border-indigo-500 bg-indigo-50" : "border-gray-300 hover:border-indigo-500"}`}
+              
+              class={`border-2 border-dashed rounded-lg p-6 text-center transition-colors duration-200 ${
+                isDragging()
+                  ? "border-indigo-500 bg-indigo-50"
+                  : "border-gray-300 hover:border-indigo-500"
+              }`}
             >
               <input
                 ref={fileInput!}
@@ -150,6 +175,8 @@ function AddListingForm() {
                 type="file"
                 multiple
                 accept="image/*"
+                class="hidden"
+                onChange={handleInputChange}
               />
               <label for="images" class="cursor-pointer">
                 <div class="space-y-2">
@@ -226,9 +253,7 @@ function AddListingForm() {
               type="submit"
               class="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg shadow-md hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition disabled:opacity-70"
             >
-              {submission.pending
-                ? "in Progress ..."
-                : "Publish Ad"}
+              {submission.pending ? "in Progress ..." : "Publish Ad"}
             </button>
           </div>
         </div>

@@ -34,33 +34,30 @@ export default function Nav() {
             </div>
           </div>
           
-          {/* Place an Ad Button */}
-          <div>
+          {/* Buttons container: Place an Ad + Log in */}
+          <div class="flex items-center space-x-4">
             <a 
               href="/create" 
               class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-indigo-600 bg-white hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out"
             >
               Place an Ad
             </a>
-          </div>
-        </div>
-        
-        {/* Mobile Navigation */}
-        <div class="md:hidden py-2">
-          <div class="flex justify-center space-x-8">
+
             <a 
-              href="/" 
-              class={`text-white font-medium py-2 border-b-2 ${active("/")} transition duration-150 ease-in-out`}
+              href="/login" 
+              class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-indigo-600 bg-white hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out"
             >
-              Home
+              Log in
             </a>
+
             <a 
-              href="/about" 
-              class={`text-white font-medium py-2 border-b-2 ${active("/about")} transition duration-150 ease-in-out`}
+              href="/register" 
+              class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-indigo-600 bg-white hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out"
             >
-              About
+              Register
             </a>
           </div>
+
         </div>
       </div>
     </nav>
