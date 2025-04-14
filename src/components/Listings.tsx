@@ -3,17 +3,18 @@ import { createAsync } from "@solidjs/router";
 import { getListings } from "~/lib/listing";
 
 export default function ListingsPage() {
+
   const listings = createAsync(() => getListings());
 
   return (
     <div class="min-h-screen bg-gray-100 py-12">
       <div class="max-w-7xl mx-auto px-6">
         <h1 class="text-4xl font-bold text-gray-800 text-center mb-10">
-          Annonces disponibles
+          Ads available for rent
         </h1>
 
-        <ErrorBoundary fallback={<div class="text-red-500 text-center">Oups, une erreur est survenue.</div>}>
-          <Suspense fallback={<div class="text-center text-gray-500">Chargement en cours...</div>}>
+        <ErrorBoundary fallback={<div class="text-red-500 text-center">Ouch an error has occured ... </div>}>
+          <Suspense fallback={<div class="text-center text-gray-500">Loading ...</div>}>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               <For each={listings()}>
                 {(listing) => (

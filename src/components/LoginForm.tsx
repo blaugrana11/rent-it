@@ -48,7 +48,7 @@ export default function LoginForm() {
         class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         disabled={submission.pending}
       >
-        {submission.pending ? "En cours..." : "Se connecter"}
+        {submission.pending ? "In progress..." : "Log in"}
       </button>
     </form>
   )
