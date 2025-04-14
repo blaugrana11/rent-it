@@ -18,21 +18,42 @@ export const register = action(async (form: FormData) => {
   }, "register");
 
   
-export const login = action(async (formData: FormData) => {
-  'use server'
-    const { email, password } = userSchema.parse({
-      email: formData.get("email"),
-      password: formData.get("password"),
-    })
-  
-    const record = await db_users.findOne({ where: { email } })
-    const isValid = await bcrypt.compare(password, record!.password)
-  
-    if (!isValid) throw new Error("Mot de passe incorrect")
-  
-    const session = await getSession()
-    await session.update({ email })
-    return redirect("/")
+  export const login = action(async (formData: FormData) => {
+    'use server'
+    try {
+      const { email, password } = userSchema.parse({
+        email: formData.get("email"),
+        password: formData.get("password"),
+      })
+      
+      const record = await db_users.findOne({ email })
+      
+      // Vérifier si l'utilisateur existe
+      if (!record) {
+        return { success: false, error: "Utilisateur non trouvé" }
+      }
+      
+      const isValid = await bcrypt.compare(password, record.password)
+      
+      if (!isValid) {
+        return { success: false, error: "Mot de passe incorrect" }
+      }
+      
+      const session = await getSession()
+      await session.update({ email })
+      
+      // Retourner un résultat explicite au lieu de rediriger
+      //return { success: true }
+      
+      // Si vous préférez la redirection, décommentez:
+      return redirect("/")
+    } catch (error) {
+      console.error("Erreur de connexion:", error)
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : "Erreur de connexion inconnue" 
+      }
+    }
   }, "login")
   
 
