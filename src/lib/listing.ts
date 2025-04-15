@@ -21,7 +21,8 @@ export const getListings = query(async () => {
   
   try {
     const rawData = await db_ads.find().toArray();
-    return listingSchema.array().parse(rawData);
+    const data = listingSchema.array().parse(rawData);
+    return data
   } catch (error) {
     if (error instanceof z.ZodError) {
       console.error("Erreur de validation Zod:", error.errors);
@@ -39,7 +40,8 @@ export const getListings = query(async () => {
 export const getListingById = query(async (id:string) => {
   "use server";
   const objectId = new ObjectId(id); // Assurer que `id` est sous forme de string
-  return await db_ads.findOne({ _id: objectId });
+  const data = await db_ads.findOne({ _id: objectId });
+  return data
 }, "getListingById");
 
 // Ajouter une annonce

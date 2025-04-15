@@ -1,6 +1,12 @@
 import { ErrorBoundary, Suspense, For } from "solid-js";
-import { createAsync } from "@solidjs/router";
+import { createAsync, RouteDefinition } from "@solidjs/router";
 import { getListings } from "~/lib/listing";
+
+export const route = {
+  preload() {
+    getListings()
+  }
+} satisfies RouteDefinition
 
 export default function ListingsPage() {
 

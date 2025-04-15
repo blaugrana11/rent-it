@@ -4,7 +4,6 @@ import { login } from "~/lib/auth/user"
 import { Field } from "~/components/Field"
 
 export default function LoginForm() {
-  const [error, setError] = createSignal("")
   const submission = useSubmission(login)
   
 
@@ -16,7 +15,7 @@ export default function LoginForm() {
     >
       <h2 class="text-2xl font-semibold">Connection</h2>
       
-      {error() && <p class="text-red-500">{error()}</p>}
+      {submission.error && <p class="text-red-500">{submission.error}</p>}
       
       <Field
         name="email"
