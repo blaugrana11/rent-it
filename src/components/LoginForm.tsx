@@ -7,17 +7,7 @@ export default function LoginForm() {
   const [error, setError] = createSignal("")
   const submission = useSubmission(login)
   
-  createEffect(() => {
-    if (submission.result) {
-      if (!submission.result.success && submission.result.error) {
-        setError(submission.result.error)
-      } else if (submission.result.success) {
-        // Redirection manuelle si nécessaire
-        window.location.href = "/"
-      }
-    }
-  })
-  
+
   return (
     <form
       method="post"

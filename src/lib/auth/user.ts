@@ -15,6 +15,7 @@ export const register = action(async (form: FormData) => {
   
     const hashed = await bcrypt.hash(password, 10);
     await db_users.insertOne({ email, password: hashed });
+    return redirect("/login");
   }, "register");
 
   
@@ -25,28 +26,20 @@ export const register = action(async (form: FormData) => {
         email: formData.get("email"),
         password: formData.get("password"),
       })
-      
       const record = await db_users.findOne({ email })
-      
-      // Vérifier si l'utilisateur existe
       if (!record) {
         return { success: false, error: "Utilisateur non trouvé" }
       }
-      
       const isValid = await bcrypt.compare(password, record.password)
-      
       if (!isValid) {
         return { success: false, error: "Mot de passe incorrect" }
       }
-      
       const session = await getSession()
       await session.update({ email })
       
-      // Retourner un résultat explicite au lieu de rediriger
-      //return { success: true }
-      
-      // Si vous préférez la redirection, décommentez:
       return redirect("/")
+      //return { success: true} 
+
     } catch (error) {
       console.error("Erreur de connexion:", error)
       return { 
