@@ -1,21 +1,14 @@
 // routes/register.tsx ou un composant spécifique
 import { register } from "~/lib/auth/user";
 import Layout from "~/components/Layout";
+import RegisterForm from "~/components/RegisterForm";
 
-export default function RegisterForm() {
+export default function Register() {
   return (
     <Layout>
-    <form method="post" action={register} class="space-y-4">
-      <div>
-        <label for="email" class="block text-sm font-medium">Email</label>
-        <input name="email" type="email" required class="border p-2 w-full" />
+      <div class="flex items-center justify-center min-h-screen bg-gray-100">
+        <RegisterForm />
       </div>
-      <div>
-        <label for="password" class="block text-sm font-medium">Mot de passe</label>
-        <input name="password" type="password" required class="border p-2 w-full" />
-      </div>
-      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">S'inscrire</button>
-    </form>
     </Layout>
   );
 }

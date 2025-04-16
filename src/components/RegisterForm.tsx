@@ -34,6 +34,13 @@ export default function RegisterForm() {
         placeholder="••••••••"
       />
 
+      <Field
+        name="pseudo"
+        label="Pseudo"
+        type="Pseudoname"
+        placeholder="pseudo453"
+      />    
+
       <button
         type="submit"
         class="w-full py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition"

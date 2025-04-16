@@ -8,13 +8,15 @@ import { db_users } from "~/lib/db";
 
 export const register = action(async (form: FormData) => {
   "use server";
-  const { email, password } = userSchema.parse({
+  const { email, password, pseudo } = userSchema.parse({
     email: form.get("email"),
     password: form.get("password"),
+    pseudo: form.get("pseudo"),
   });
 
   const hashed = await bcrypt.hash(password, 10);
-  await db_users.insertOne({ email, password: hashed });
+  await db_users.insertOne({ email, password: hashed, pseudo });
+  
   throw redirect("/login");
 }, "register");
 

@@ -3,6 +3,7 @@ import { useLocation, createAsync } from "@solidjs/router";
 import LogoutButton from "~/components/LogoutButton";
 import { getUser } from "~/lib/auth/user";
 import { Show } from "solid-js"
+import { User } from "lucide-solid"; 
 
 export default function Nav() {
   const location = useLocation();
@@ -49,10 +50,15 @@ export default function Nav() {
             </a>
 
             <Show when={user()}>
-              {/* Si connecté */}
-              <span class="text-white hidden md:inline">Bonjour {user()?.email}</span>
-              <LogoutButton />
+              <div class="flex items-center space-x-3">
+                <div class="flex items-center bg-white text-indigo-600 font-semibold px-3 py-1 rounded-full shadow text-sm">
+                  <User class="w-4 h-4 mr-1" />
+                  {user()?.pseudo}
+                </div>
+                <LogoutButton />
+              </div>
             </Show>
+
 
             <Show when={!user()}>
               {/* Si pas connecté */}
