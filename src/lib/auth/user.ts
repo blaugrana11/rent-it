@@ -42,7 +42,7 @@ export const logout = action(async () => {
   "use server";
   const session = await getSession();
   await session.clear();
-  return redirect("/login");
+  return redirect("/");
 });
 
 export const getUser = query(async () => {
