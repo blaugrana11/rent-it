@@ -3,7 +3,7 @@ import { useLocation, createAsync } from "@solidjs/router";
 import LogoutButton from "~/components/LogoutButton";
 import { getUser } from "~/lib/auth/user";
 import { Show } from "solid-js"
-import { User } from "lucide-solid"; 
+import { User } from "lucide-solid";
 
 export default function Nav() {
   const location = useLocation();
