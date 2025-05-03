@@ -9,10 +9,10 @@ export const route = {
     // Précharger avec les paramètres de recherche
     const params = new URLSearchParams(location.search);
     const searchParams = {
-      query: params.get("query") || undefined,
-      condition: params.get("condition") || undefined,
-      minPrice: params.get("minPrice") ? Number(params.get("minPrice")) : undefined,
-      maxPrice: params.get("maxPrice") ? Number(params.get("maxPrice")) : undefined
+      query: params.get("query") ?? undefined,
+      condition: params.get("condition") ?? undefined,
+      minPrice: params.get("minPrice") !== null ? Number(params.get("minPrice")) : undefined,
+      maxPrice: params.get("maxPrice") !== null ? Number(params.get("maxPrice")) : undefined
     };
     
     getListings(searchParams);
@@ -24,14 +24,20 @@ export default function ListingsPage() {
   
   // Convertir les paramètres d'URL en format utilisable par getListings
   const searchOptions = () => ({
-    query: searchParams.query,
-    condition: searchParams.condition,
-    minPrice: searchParams.minPrice ? Number(searchParams.minPrice) : undefined,
-    maxPrice: searchParams.maxPrice ? Number(searchParams.maxPrice) : undefined
+    query: typeof searchParams.query === 'string' ? searchParams.query : undefined,
+    condition: typeof searchParams.condition === 'string' ? searchParams.condition : undefined,
+    minPrice: typeof searchParams.minPrice === 'string' ? Number(searchParams.minPrice) : undefined,
+    maxPrice: typeof searchParams.maxPrice === 'string' ? Number(searchParams.maxPrice) : undefined
   });
   
   // Utiliser createAsync avec les paramètres de recherche
-  const listings = createAsync(() => getListings(searchOptions()));
+  const listingsResource = createAsync(() => getListings(searchOptions()));
+  
+  // Fonction pour vérifier si les listings existent et ne sont pas vides
+  const hasListings = () => {
+    const data = listingsResource();
+    return data !== undefined && Array.isArray(data) && data.length > 0;
+  };
   
   return (
     <div class="min-h-screen bg-gray-100 py-12">
@@ -46,7 +52,7 @@ export default function ListingsPage() {
         <ErrorBoundary fallback={<div class="text-red-500 text-center">Ouch an error has occured ... </div>}>
           <Suspense fallback={<div class="text-center text-gray-500">Loading ...</div>}>
             <Show
-              when={listings() && listings().length > 0}
+              when={hasListings()}
               fallback={
                 <div class="text-center py-10">
                   <p class="text-xl text-gray-600">Aucune annonce ne correspond à votre recherche</p>
@@ -55,7 +61,7 @@ export default function ListingsPage() {
               }
             >
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <For each={listings()}>
+                <For each={listingsResource() || []}>
                   {(listing) => (
                     <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 p-6 flex flex-col">
                       <h2 class="text-2xl font-semibold text-gray-900 mb-2">{listing.title}</h2>

@@ -4,10 +4,10 @@ import { useNavigate, useSearchParams } from "@solidjs/router";
 
 export default function SearchBar() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [searchQuery, setSearchQuery] = createSignal(searchParams.query || "");
-  const [condition, setCondition] = createSignal(searchParams.condition || "");
-  const [minPrice, setMinPrice] = createSignal(searchParams.minPrice || "");
-  const [maxPrice, setMaxPrice] = createSignal(searchParams.maxPrice || "");
+  const [searchQuery, setSearchQuery] = createSignal(typeof searchParams.query === 'string' ? searchParams.query : "");
+  const [condition, setCondition] = createSignal(typeof searchParams.condition === 'string' ? searchParams.condition : "");
+  const [minPrice, setMinPrice] = createSignal(typeof searchParams.minPrice === 'string' ? searchParams.minPrice : "");
+  const [maxPrice, setMaxPrice] = createSignal(typeof searchParams.maxPrice === 'string' ? searchParams.maxPrice : "");
   const [showFilters, setShowFilters] = createSignal(false);
   
   const navigate = useNavigate();
@@ -18,10 +18,16 @@ export default function SearchBar() {
     const params = new URLSearchParams();
     
     // Ajouter les paramètres seulement s'ils ont une valeur
-    if (searchQuery().trim()) params.append("query", searchQuery());
-    if (condition()) params.append("condition", condition());
-    if (minPrice()) params.append("minPrice", minPrice());
-    if (maxPrice()) params.append("maxPrice", maxPrice());
+    const query = searchQuery();
+    const cond = condition();
+    const minP = minPrice();
+    const maxP = maxPrice();
+    
+    // S'assurer que ce sont des chaînes de caractères et qu'elles ne sont pas vides
+    if (typeof query === 'string' && query.trim()) params.append("query", query);
+    if (typeof cond === 'string' && cond) params.append("condition", cond);
+    if (typeof minP === 'string' && minP) params.append("minPrice", minP);
+    if (typeof maxP === 'string' && maxP) params.append("maxPrice", maxP);
     
     // Rediriger avec les paramètres de recherche
     navigate(`/?${params.toString()}`);
@@ -105,7 +111,7 @@ export default function SearchBar() {
           </div>
         )}
         
-        {(searchQuery() || condition() || minPrice() || maxPrice()) && (
+        {(searchQuery() !== "" || condition() !== "" || minPrice() !== "" || maxPrice() !== "") && (
           <div class="mt-4 flex justify-end">
             <button
               type="button"

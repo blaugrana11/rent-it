@@ -17,7 +17,7 @@ const listingSchema = z.object({
 }); // Images sous forme d'URL
 
 // Mise à jour de la fonction getListings pour prendre en charge la recherche
-export const getListings = query(async (searchParams?: { query?: string, condition?: string, minPrice?: number, maxPrice?: number }) => {
+export const getListings = query(async (searchParams?: { query?: string | undefined, condition?: string | undefined, minPrice?: number | undefined, maxPrice?: number | undefined }) => {
   "use server";
   
   try {
