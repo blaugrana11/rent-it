@@ -1,6 +1,6 @@
 import { db_ads } from "~/lib/db";
 import { action, query } from "@solidjs/router";
-import { z } from "zod";
+import { number, z } from "zod";
 import { ObjectId } from "mongodb";
 import fs from "fs/promises";
 import path from "path";
@@ -8,29 +8,48 @@ import path from "path";
 const listingSchema = z.object({
   title: z.string().min(3, "Le titre doit contenir au moins 3 caractères"),
   description: z.string().min(10, "La description est trop courte"),
-  price: z.number().min(0, "Le prix doit être positif"),
-  condition: z.enum(["neuf", "comme neuf", "bon état", "état moyen", "mauvais état"]),
-  images: z.array(z.string()).optional(), // Images sous forme d'URL
-});
+  price: z.coerce.number().min(0, "Le prix doit être positif"),
+  condition: z.enum(["neuf", "comme neuf", "bon état", "état moyen", "mauvais état"]).optional(),
+  images: z.union([
+    z.array(z.string()),
+    z.string().transform(value => [value]) // Transforme une chaîne unique en tableau
+  ]).optional(),
+}); // Images sous forme d'URL
 
-// ✅ Récupérer toutes les annonces
 export const getListings = query(async () => {
   "use server";
-  return await db_ads.find().toArray(); // Convertir le curseur en tableau
+  
+  try {
+    const rawData = await db_ads.find().toArray();
+    const data = listingSchema.array().parse(rawData);
+    return data
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      console.error("Erreur de validation Zod:", error.errors);
+      // Vous pouvez retourner une erreur plus conviviale ici
+      throw new Error("Données invalides dans la base de données");
+    }
+    
+    // Pour les autres types d'erreurs
+    console.error("Erreur lors de la récupération des annonces:", error);
+    throw error;
+  }
 }, "getListings");
 
-// ✅ Récupérer une annonce par son ID
+// Récupérer une annonce par son ID
 export const getListingById = query(async (id:string) => {
   "use server";
   const objectId = new ObjectId(id); // Assurer que `id` est sous forme de string
-  return await db_ads.findOne({ _id: objectId });
+  const data = await db_ads.findOne({ _id: objectId });
+  return data
 }, "getListingById");
 
-// ✅ Ajouter une annonce
+// Ajouter une annonce
 export const createListing = async (form: FormData) => {
   "use server";
-
-  // 1️⃣ **Extraire les données du formulaire sans traiter les images**
+  try {
+  console.log("Données reçues pour création:", form);
+  // Extraire les données du formulaire sans traiter les images
   const listingData = {
     title: form.get("title"),
     description: form.get("description"),
@@ -38,12 +57,13 @@ export const createListing = async (form: FormData) => {
     condition: form.get("condition"),
     images: [], // Vide pour l'instant
   };
-
-  // 2️⃣ **Valider les données avec Zod AVANT d'enregistrer les images**
+  console.log("Données extraites du formulaire:", listingData);
+  //Valider les données avec Zod AVANT d'enregistrer les images
   const validatedListing = listingSchema.parse(listingData);
-
-  // 3️⃣ **Si la validation réussit, on traite les images**
+  console.log("Données validées:", validatedListing);
+  //Si la validation réussit, on traite les images
   const imageFiles = form.getAll("images") as File[];
+  console.log("Images reçues:", imageFiles);
   const imagePaths: string[] = [];
 
   for (const file of imageFiles) {
@@ -58,15 +78,20 @@ export const createListing = async (form: FormData) => {
 
   validatedListing.images = imagePaths; // Ajouter les images validées
 
-  // 4️⃣ **Insertion dans la base de données**
+  //Insertion dans la base de données
   const result = await db_ads.insertOne(validatedListing);
   return { insertedId: result.insertedId };
-};
-
+} catch (error) {
+  return { error: String(error) };
+  // console.error("Erreur lors de la création de l'annonce:", error);
+  // throw error;
+  };
+}
 export const createListingAction = action(createListing);
+//export const createListingAction = action(createListing, "createListing");
 
 
-// ✅ Mettre à jour une annonce
+// Mettre à jour une annonce
 export const updateListing = async (id: string, form: FormData) => {
   "use server";
 
@@ -74,7 +99,7 @@ export const updateListing = async (id: string, form: FormData) => {
   const existingListing = await db_ads.findOne({ _id: objectId });
   if (!existingListing) throw new Error("Annonce non trouvée");
 
-  // 1️⃣ **Extraire les champs texte du formulaire (sans images)**
+  // Extraire les champs texte du formulaire (sans images)
   const updateData = {
     title: form.has("title") ? String(form.get("title")) : existingListing.title,
     description: form.has("description") ? String(form.get("description")) : existingListing.description,
@@ -83,10 +108,10 @@ export const updateListing = async (id: string, form: FormData) => {
     images: existingListing.images, // Par défaut, on garde les anciennes images
   };
 
-  // 2️⃣ **Valider les données AVANT d'uploader les images**
+  //Valider les données AVANT d'uploader les images
   const validatedData = listingSchema.parse(updateData);
 
-  // 3️⃣ **Gérer les images UNIQUEMENT si la validation réussit**
+  //Gérer les images UNIQUEMENT si la validation réussit
   const imageFiles = form.getAll("images") as File[];
   if (imageFiles.length > 0) {
     const imagePaths: string[] = [];
@@ -104,7 +129,7 @@ export const updateListing = async (id: string, form: FormData) => {
     validatedData.images = imagePaths; // Remplacer les images uniquement après validation
   }
 
-  // 4️⃣ **Mettre à jour l'annonce dans la base de données**
+  // Mettre à jour l'annonce dans la base de données
   await db_ads.updateOne({ _id: objectId }, { $set: validatedData });
 
   return { message: "Annonce mise à jour", updateData: validatedData };
@@ -112,7 +137,7 @@ export const updateListing = async (id: string, form: FormData) => {
 
 export const updateListingAction = action(updateListing);
 
-// ✅ Supprimer une annonce
+// Supprimer une annonce
 export const deleteListing = async (id: string) => {
   "use server";
   console.log("ID reçu pour suppression:", id);
