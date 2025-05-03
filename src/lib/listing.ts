@@ -16,21 +16,52 @@ const listingSchema = z.object({
   ]).optional(),
 }); // Images sous forme d'URL
 
-export const getListings = query(async () => {
+// Mise à jour de la fonction getListings pour prendre en charge la recherche
+export const getListings = query(async (searchParams?: { query?: string, condition?: string, minPrice?: number, maxPrice?: number }) => {
   "use server";
   
   try {
-    const rawData = await db_ads.find().toArray();
+    let filter: any = {};
+    
+    // Construire le filtre de recherche si des paramètres sont fournis
+    if (searchParams) {
+      // Recherche textuelle (dans le titre et la description)
+      if (searchParams.query && searchParams.query.trim() !== '') {
+        filter.$or = [
+          { title: { $regex: searchParams.query, $options: 'i' } },
+          { description: { $regex: searchParams.query, $options: 'i' } }
+        ];
+      }
+      
+      // Filtre par état/condition
+      if (searchParams.condition) {
+        filter.condition = searchParams.condition;
+      }
+      
+      // Filtre par prix
+      let priceFilter = {};
+      if (searchParams.minPrice !== undefined) {
+        priceFilter = { ...priceFilter, $gte: searchParams.minPrice };
+      }
+      if (searchParams.maxPrice !== undefined) {
+        priceFilter = { ...priceFilter, $lte: searchParams.maxPrice };
+      }
+      
+      if (Object.keys(priceFilter).length > 0) {
+        filter.price = priceFilter;
+      }
+    }
+    
+    // Exécuter la requête avec le filtre
+    const rawData = await db_ads.find(filter).toArray();
     const data = listingSchema.array().parse(rawData);
     return data
   } catch (error) {
     if (error instanceof z.ZodError) {
       console.error("Erreur de validation Zod:", error.errors);
-      // Vous pouvez retourner une erreur plus conviviale ici
       throw new Error("Données invalides dans la base de données");
     }
     
-    // Pour les autres types d'erreurs
     console.error("Erreur lors de la récupération des annonces:", error);
     throw error;
   }
