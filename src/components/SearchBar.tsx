@@ -39,53 +39,58 @@ export default function SearchBar() {
 
   return (
     <div class="w-full max-w-3xl mx-auto mb-8">
-      <form onSubmit={handleSubmit} class="bg-white rounded-lg shadow-md p-4">
-        <div class="flex items-center">
-          <input
-            type="text"
-            value={searchQuery()}
-            onInput={(e) => setSearchQuery(e.target.value)}
-            placeholder="Rechercher des objets..."
-            class="flex-1 p-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-          <button
-            type="submit"
-            class="bg-indigo-600 text-white p-2 rounded-r-lg hover:bg-indigo-700 transition-colors"
-          >
-            Rechercher
-          </button>
-          <button
-            type="button"
-            onClick={toggleFilters}
-            class="ml-2 px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
-          >
-            Filtres {showFilters() ? '▲' : '▼'}
-          </button>
-        </div>
+        <form onSubmit={handleSubmit} class="bg-white rounded-lg shadow-lg p-6 w-full max-w-4xl mx-auto">
+            <div class="flex items-center space-x-4 w-full bg-white">
+                
+                <input
+                    type="text"
+                    value={searchQuery()}
+                    onInput={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search items..."
+                    class="flex-1 p-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-200 ease-in-out"
+                />
+
+                <button
+                    type="button"
+                    onClick={toggleFilters}
+                    class="py-2 px-3 flex items-center bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg shadow-md transition duration-300 ease-in-out"
+                >
+                    <span>Filters</span>
+                    <span class="ml-2 text-lg">{showFilters() ? '▲' : '▼'}</span>
+                </button>
+
+                <button
+                    type="submit"
+                    class="py-2 px-5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-md hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition disabled:opacity-70"
+                >
+                    Search
+                </button>
+            </div>
+
         
         {showFilters() && (
           <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                État
+                Condition
               </label>
               <select
                 value={condition()}
                 onChange={(e) => setCondition(e.target.value)}
                 class="w-full p-2 border border-gray-300 rounded-lg"
               >
-                <option value="">Tous les états</option>
-                <option value="neuf">Neuf</option>
-                <option value="comme neuf">Comme neuf</option>
-                <option value="bon état">Bon état</option>
-                <option value="état moyen">État moyen</option>
-                <option value="mauvais état">Mauvais état</option>
+                <option value="">Any condition</option>
+                <option value="neuf">New</option>
+                <option value="comme neuf">Like new</option>
+                <option value="bon état">Good condition</option>
+                <option value="état moyen">Average condition</option>
+                <option value="mauvais état">Bad condition</option>
               </select>
             </div>
             
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Prix minimum (€)
+                Minimum price (€)
               </label>
               <input
                 type="number"
@@ -98,7 +103,7 @@ export default function SearchBar() {
             
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Prix maximum (€)
+                Maximum price (€)
               </label>
               <input
                 type="number"
@@ -111,20 +116,19 @@ export default function SearchBar() {
           </div>
         )}
         
-        {(searchQuery() !== "" || condition() !== "" || minPrice() !== "" || maxPrice() !== "") && (
+        {(condition() !== "" || minPrice() !== "" || maxPrice() !== "") && (
           <div class="mt-4 flex justify-end">
             <button
               type="button"
               onClick={() => {
-                setSearchQuery("");
                 setCondition("");
                 setMinPrice("");
                 setMaxPrice("");
-                navigate("/");
+                //navigate("/");
               }}
-              class="text-sm text-indigo-600 hover:text-indigo-800"
+              class="inline-flex items-center px-4 py-2 border border-red-600 rounded-md shadow-sm text-sm font-medium text-red-600 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-150 ease-in-out"
             >
-              Effacer les filtres
+              Clear filters
             </button>
           </div>
         )}

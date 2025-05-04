@@ -46,7 +46,6 @@ export default function ListingsPage() {
           Ads available for rent
         </h1>
         
-        {/* Intégration de la barre de recherche */}
         <SearchBar />
         
         <ErrorBoundary fallback={<div class="text-red-500 text-center">Ouch an error has occured ... </div>}>
@@ -55,8 +54,8 @@ export default function ListingsPage() {
               when={hasListings()}
               fallback={
                 <div class="text-center py-10">
-                  <p class="text-xl text-gray-600">Aucune annonce ne correspond à votre recherche</p>
-                  <p class="text-gray-500 mt-2">Essayez de modifier vos critères de recherche</p>
+                  <p class="text-xl text-gray-600">No ad matches your search</p>
+                  <p class="text-gray-500 mt-2">Try changing your search criteria</p>
                 </div>
               }
             >
@@ -67,11 +66,22 @@ export default function ListingsPage() {
                       <h2 class="text-2xl font-semibold text-gray-900 mb-2">{listing.title}</h2>
                       <p class="text-gray-600 flex-1">{listing.description}</p>
                       <div class="mt-4 flex justify-between items-center">
-                        <p class="text-lg text-indigo-600 font-bold">Prix : {listing.price}€</p>
+                        <p class="text-lg text-indigo-600 font-bold">Price : {listing.price}€</p>
                         {listing.condition && (
                           <span class="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full">
-                            {listing.condition}
-                          </span>
+                          {listing.condition === "bon état"
+                            ? "Good condition"
+                            : listing.condition === "neuf"
+                            ? "New"
+                            : listing.condition === "état moyen"
+                            ? "Average condition"
+                            : listing.condition === "mauvais état"
+                            ? "Bad condition"
+                            : listing.condition === "comme neuf"
+                            ? "Like new"
+                            : listing.condition}
+                        </span>
+                        
                         )}
                       </div>
                       
