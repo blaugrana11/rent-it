@@ -32,7 +32,6 @@ export default function ListingsPage() {
   
   // Utiliser createAsync avec les paramètres de recherche
   const listingsResource = createAsync(() => getListings(searchOptions()));
-  
   // Fonction pour vérifier si les listings existent et ne sont pas vides
   const hasListings = () => {
     const data = listingsResource();
@@ -61,8 +60,11 @@ export default function ListingsPage() {
             >
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <For each={listingsResource() || []}>
-                  {(listing) => (
-                    <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 p-6 flex flex-col">
+                  {(listing) =>( 
+                    <a 
+                    href={`/listing/${listing._id}`} 
+                    class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 p-6 flex flex-col cursor-pointer"
+                  >
                       <h2 class="text-2xl font-semibold text-gray-900 mb-2">{listing.title}</h2>
                       <p class="text-gray-600 flex-1">{listing.description}</p>
                       <div class="mt-4 flex justify-between items-center">
@@ -98,7 +100,7 @@ export default function ListingsPage() {
                           </div>
                         </div>
                       )}
-                    </div>
+                    </a>
                   )}
                 </For>
               </div>
