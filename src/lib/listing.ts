@@ -1,9 +1,21 @@
 import { db_ads } from "~/lib/db";
 import { action, query } from "@solidjs/router";
-import { number, z } from "zod";
+import { z } from "zod";
 import { ObjectId } from "mongodb";
 import fs from "fs/promises";
 import path from "path";
+
+const getlistingSchema = z.object({
+  _id: z.instanceof(ObjectId).optional().transform((val) => val?.toString()),
+  title: z.string().min(3, "Le titre doit contenir au moins 3 caractères"),
+  description: z.string().min(10, "La description est trop courte"),
+  price: z.coerce.number().min(0, "Le prix doit être positif"),
+  condition: z.enum(["neuf", "comme neuf", "bon état", "état moyen", "mauvais état"]).optional(),
+  images: z.union([
+    z.array(z.string()),
+    z.string().transform(value => [value]) // Transforme une chaîne unique en tableau
+  ]).optional(),
+}); // Images sous forme d'URL
 
 const listingSchema = z.object({
   title: z.string().min(3, "Le titre doit contenir au moins 3 caractères"),
@@ -14,7 +26,7 @@ const listingSchema = z.object({
     z.array(z.string()),
     z.string().transform(value => [value]) // Transforme une chaîne unique en tableau
   ]).optional(),
-}); // Images sous forme d'URL
+})
 
 // Mise à jour de la fonction getListings pour prendre en charge la recherche
 export const getListings = query(async (searchParams?: { query?: string | undefined, condition?: string | undefined, minPrice?: number | undefined, maxPrice?: number | undefined }) => {
@@ -54,7 +66,8 @@ export const getListings = query(async (searchParams?: { query?: string | undefi
     
     // Exécuter la requête avec le filtre
     const rawData = await db_ads.find(filter).toArray();
-    const data = listingSchema.array().parse(rawData);
+    
+    const data = getlistingSchema.array().parse(rawData);
     return data
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -71,8 +84,11 @@ export const getListings = query(async (searchParams?: { query?: string | undefi
 export const getListingById = query(async (id:string) => {
   "use server";
   const objectId = new ObjectId(id); // Assurer que `id` est sous forme de string
-  const data = await db_ads.findOne({ _id: objectId });
-  return data
+  const rawData = await db_ads.findOne({ _id: objectId });
+  if (!rawData) return null;
+
+  const data = getlistingSchema.parse(rawData);
+  return data;
 }, "getListingById");
 
 // Ajouter une annonce
