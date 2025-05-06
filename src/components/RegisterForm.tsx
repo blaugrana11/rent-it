@@ -10,40 +10,43 @@ export default function RegisterForm() {
     <form
       method="post"
       action={register}
-      class="max-w-md mx-auto bg-white p-6 rounded-lg shadow space-y-6"
+      class="bg-white max-w-md mx-auto p-8 rounded-2xl shadow-xl space-y-6 border border-gray-200"
     >
-      <h2 class="text-2xl font-bold text-center text-gray-800">Create an account</h2>
+  
 
       {error() && (
-        <div class="text-red-600 bg-red-100 p-2 rounded text-sm">
+        <div class="bg-red-100 text-red-700 px-4 py-2 rounded text-sm">
           {error()}
         </div>
       )}
 
-      <Field
-        name="email"
-        label="E-mail address"
-        type="email"
-        placeholder="exemple@domain.com"
-      />
+      <div class="space-y-4">
+        <Field
+          name="pseudo"
+          label="Username"
+          type="text"
+          placeholder="e.g. johndoe123"
+        />
 
-      <Field
-        name="password"
-        label="Password"
-        type="password"
-        placeholder="••••••••"
-      />
+        <Field
+          name="email"
+          label="Email Address"
+          type="email"
+          placeholder="example@domain.com"
+        />
 
-      <Field
-        name="pseudo"
-        label="Pseudo"
-        type="Pseudoname"
-        placeholder="pseudo453"
-      />    
+        <Field
+          name="password"
+          label="Password"
+          type="password"
+          placeholder="••••••••"
+          autocomplete="new-password"
+        />
+      </div>
 
       <button
         type="submit"
-        class="w-full py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition"
+        class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 rounded-lg transition duration-150"
       >
         Register
       </button>
