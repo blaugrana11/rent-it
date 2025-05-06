@@ -1,17 +1,7 @@
 // /routes/create.tsx
 import AddListingForm from "~/components/AddListingForm";
-import { getUser } from "~/lib/auth/user";
-import { redirect } from "@solidjs/router";
 import Layout from "~/components/Layout";
 
-export const route = {
-  preload: async () => {
-    const user = await getUser();
-    if (!user) {
-      throw redirect("/login");
-    }
-  },
-};
 
 export default function CreatePage() {
   return (

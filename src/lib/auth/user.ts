@@ -47,11 +47,12 @@ export const logout = action(async () => {
   return redirect("/");
 });
 
+
 export const getUser = query(async () => {
   "use server";
-    const session = await getSession();
-    if (!session.data.email) return null;
-    const user = await db_users.findOne({ email: session.data.email });
-    const parsedUser = userSchema.parse(user);
-    return parsedUser
+  const session = await getSession();
+  if (!session.data.email) return null;
+  const user = await db_users.findOne({ email: session.data.email });
+  if (!user) return null;
+  return userSchema.parse(user); 
 }, "getUser");
