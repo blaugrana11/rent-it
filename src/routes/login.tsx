@@ -14,7 +14,7 @@ export default function LoginPage() {
               Log in to manage your listings, update your account, and post new ads.
             </p>
             <img
-              src="public\Wavy_Tech-28_Single-10.jpg"
+              src="public\img\Wavy_Tech-28_Single-10.jpg"
               alt="Login illustration"
               class="w-full max-w-xs"
             />

@@ -24,9 +24,9 @@ export default function Register() {
           </div>
 
           {/* Right: Visual Section */}
-          <div class="hidden md:flex w-1/2 bg-indigo-600 items-center justify-center">
+          <div class="hidden md:flex w-1/2 items-center justify-center">
             <img
-              src="public\Wavy_Tech-28_Single-10.jpg"
+              src="public/img/Wavy_Gen-01_Single-07.jpg"
               alt="Registration Visual"
               class="object-cover w-full h-full"
             />

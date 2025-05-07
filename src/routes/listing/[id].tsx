@@ -34,7 +34,7 @@ export default function ListingDetailPage() {
   };
   
   // Fonction pour changer directement à une image spécifique
-  const goToImage = (index) => {
+  const goToImage = (index:number) => {
     setCurrentImageIndex(index);
   };
 
@@ -45,12 +45,13 @@ export default function ListingDetailPage() {
           <ErrorBoundary fallback={<div class="text-red-500 text-center">Ouch, an error has occured...</div>}>
             <Suspense fallback={<div class="text-center text-gray-500">Ad loading...</div>}>
             <div class="p-2 ">
-                      <a 
-                        href="/"
-                        class="inline-block bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-lg transition-colors"
-                      >
-                        ← Back to listings
-                      </a>
+            <a
+              href="/"
+              class="inline-flex items-center gap-2 bg-indigo-600 text-white font-medium px-6 py-2 rounded-lg shadow hover:bg-indigo-700 transition duration-150 ease-in-out"
+            >
+              ← Back to listings
+            </a>
+
             </div>
               <Show when={listing()} fallback={<div class="text-center">Ad not found</div>}>
                 {(data) => (
