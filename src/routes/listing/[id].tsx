@@ -18,25 +18,51 @@ export default function ListingDetailPage() {
   // État pour gérer l'image actuellement affichée
   const [currentImageIndex, setCurrentImageIndex] = createSignal(0);
   
-  // Fonctions pour naviguer entre les images
-  const goToPrevImage = () => {
-    if (!listing()?.images) return;
-    setCurrentImageIndex(prev => 
-      prev === 0 ? listing().images.length - 1 : prev - 1
-    );
-  };
+  // // Fonctions pour naviguer entre les images
+  // const goToPrevImage = () => {
+  //   if (!listing()?.images) return;
+  //   setCurrentImageIndex(prev => 
+  //     prev === 0 ? listing().images.length - 1 : prev - 1
+  //   );
+  // };
   
-  const goToNextImage = () => {
-    if (!listing()?.images) return;
-    setCurrentImageIndex(prev => 
-      prev === listing().images.length - 1 ? 0 : prev + 1
-    );
-  };
+  // const goToNextImage = () => {
+  //   if (!listing()?.images) return;
+  //   setCurrentImageIndex(prev => 
+  //     prev === listing().images.length - 1 ? 0 : prev + 1
+  //   );
+  // };
   
-  // Fonction pour changer directement à une image spécifique
-  const goToImage = (index:number) => {
-    setCurrentImageIndex(index);
-  };
+  // // Fonction pour changer directement à une image spécifique
+  // const goToImage = (index:number) => {
+  //   setCurrentImageIndex(index);
+  // };
+
+
+    // Fonctions pour naviguer entre les images
+    const goToPrevImage = () => {
+      const current = listing();
+      if (!current || !current.images) return;
+    
+      setCurrentImageIndex((prev) =>
+        prev === 0 ? (current.images?.length ?? 0) - 1 : prev - 1
+      );
+    };
+    
+    
+    const goToNextImage = () => {
+      const current = listing();
+      if (!current) return;
+      setCurrentImageIndex(prev => 
+        prev === (current.images?.length ?? 0) - 1 ? 0 : prev + 1
+      );
+    };
+    
+    // Fonction pour changer directement à une image spécifique
+    const goToImage = (index:number) => {
+      setCurrentImageIndex(index);
+    };
+  
 
   return (
     <Layout>
@@ -75,7 +101,7 @@ export default function ListingDetailPage() {
                     </div>
                     
                     {/* Images avec carrousel */}
-                    <Show when={data().images && data().images.length > 0}>
+                    <Show when={(data().images ?? []).length > 0}>
                       <div class="relative">
                         {/* Conteneur d'image principale avec navigation */}
                         <div class="w-full h-96 bg-gray-200 relative">
@@ -86,7 +112,7 @@ export default function ListingDetailPage() {
                           />
                           
                           {/* Boutons de navigation */}
-                          <Show when={data().images && data().images.length > 1}>
+                          <Show when={(data().images ?? []).length > 1}>
                             <div class="absolute inset-0 flex items-center justify-between p-4">
                               <button 
                                 onClick={goToPrevImage} 
@@ -111,14 +137,14 @@ export default function ListingDetailPage() {
                             {/* Indicateur de position */}
                             <div class="absolute bottom-4 left-0 right-0 flex justify-center">
                               <div class="bg-white/70 px-3 py-1 rounded-full text-sm">
-                                {currentImageIndex() + 1} / {data().images.length}
+                                {currentImageIndex() + 1} / {data().images?.length ?? 0}
                               </div>
                             </div>
                           </Show>
                         </div>
                         
                         {/* Miniatures (si plus d'une image) */}
-                        <Show when={data().images && data().images.length > 1}>
+                        <Show when={(data().images ?? []).length > 1}>
                           <div class="p-4 flex gap-4 overflow-x-auto">
                             {data().images?.map((image, index) => (
                               <img 
