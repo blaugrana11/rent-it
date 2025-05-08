@@ -41,9 +41,7 @@ export default function ListingsPage() {
   return (
     <div class="min-h-screen bg-gray-100 py-12">
       <div class="max-w-7xl mx-auto px-6">
-        <h1 class="text-4xl font-bold text-gray-800 text-center mb-10">
-          Ads available for rent
-        </h1>
+
         
         <SearchBar />
         

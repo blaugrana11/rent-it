@@ -18,26 +18,6 @@ export default function ListingDetailPage() {
   // État pour gérer l'image actuellement affichée
   const [currentImageIndex, setCurrentImageIndex] = createSignal(0);
   
-  // // Fonctions pour naviguer entre les images
-  // const goToPrevImage = () => {
-  //   if (!listing()?.images) return;
-  //   setCurrentImageIndex(prev => 
-  //     prev === 0 ? listing().images.length - 1 : prev - 1
-  //   );
-  // };
-  
-  // const goToNextImage = () => {
-  //   if (!listing()?.images) return;
-  //   setCurrentImageIndex(prev => 
-  //     prev === listing().images.length - 1 ? 0 : prev + 1
-  //   );
-  // };
-  
-  // // Fonction pour changer directement à une image spécifique
-  // const goToImage = (index:number) => {
-  //   setCurrentImageIndex(index);
-  // };
-
 
     // Fonctions pour naviguer entre les images
     const goToPrevImage = () => {
@@ -70,15 +50,18 @@ export default function ListingDetailPage() {
         <div class="max-w-4xl mx-auto px-6">
           <ErrorBoundary fallback={<div class="text-red-500 text-center">Ouch, an error has occured...</div>}>
             <Suspense fallback={<div class="text-center text-gray-500">Ad loading...</div>}>
-            <div class="p-2 ">
-            <a
-              href="/"
-              class="inline-flex items-center gap-2 bg-indigo-600 text-white font-medium px-6 py-2 rounded-lg shadow hover:bg-indigo-700 transition duration-150 ease-in-out"
-            >
-              ← Back to listings
-            </a>
-
+            <div class="p-2">
+              <a
+                href="/"
+                class="inline-flex items-center gap-2 bg-indigo-600 text-white font-medium px-6 py-2 rounded-lg shadow hover:bg-indigo-700 transition duration-150 ease-in-out"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" stroke="currentColor" fill="none">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Back
+              </a>
             </div>
+
               <Show when={listing()} fallback={<div class="text-center">Ad not found</div>}>
                 {(data) => (
                   <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
