@@ -113,7 +113,7 @@ function AddListingForm() {
             </svg>
           </div>
           <div class="ml-3">
-            <p class="text-sm font-medium">Annonce créée avec succès !</p>
+            <p class="text-sm font-medium">Ad successfully created !</p>
           </div>
         </div>
       </div>

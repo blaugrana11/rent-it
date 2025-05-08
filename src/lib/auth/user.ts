@@ -37,7 +37,6 @@ export const login = action(async (formData: FormData) => {
   const session = await getSession();
   await session.update({ email });
   return redirect("/"); // Redirige vers la page d'accueil après connexion
-  //throw reload({ revalidate: "nothing" })
 }, "login");
 
 export const logout = action(async () => {

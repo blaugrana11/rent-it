@@ -16,6 +16,8 @@ export default function LoginForm() {
       {submission.error && (
         <div class="bg-red-100 text-red-700 px-4 py-2 rounded text-sm">
           {submission.error}
+          Incorrect password or email address.
+          Please try again.
         </div>
       )}
 
