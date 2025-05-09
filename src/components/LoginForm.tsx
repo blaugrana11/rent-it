@@ -1,14 +1,14 @@
 import { useSubmission } from "@solidjs/router"
-import { login } from "~/lib/auth/user"
+import { loginAction } from "~/lib/auth/user"
 import { Field } from "~/components/Field"
 
 export default function LoginForm() {
-  const submission = useSubmission(login)
+  const submission = useSubmission(loginAction)
 
   return (
     <form
       method="post"
-      action={login}
+      action={loginAction}
       class="bg-white max-w-md mx-auto mt-16 p-8 rounded-2xl shadow-xl space-y-6 border border-gray-200"
     >
       <h2 class="text-3xl font-bold text-gray-800 text-center">Log in</h2>

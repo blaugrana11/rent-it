@@ -20,12 +20,17 @@ export const register = action(async (form: FormData) => {
   throw redirect("/login");
 }, "register");
 
-export const login = action(async (formData: FormData) => {
+
+
+
+export const login = async (formData: FormData) => {
   "use server";
+  console.log("login", formData);
   const { email, password } = userSchema.parse({
     email: formData.get("email"),
     password: formData.get("password"),
   });
+  console.log("login", email, password);
   const record = await db_users.findOne({ email });
   if (!record) {
     throw new Error("Utilisateur non trouvé");
@@ -37,7 +42,13 @@ export const login = action(async (formData: FormData) => {
   const session = await getSession();
   await session.update({ email });
   return redirect("/"); // Redirige vers la page d'accueil après connexion
-}, "login");
+};
+
+export const loginAction = action(login);
+
+
+
+
 
 export const logout = action(async () => {
   "use server";
