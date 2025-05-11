@@ -6,7 +6,7 @@ import { userSchema } from "./schema";
 import { getSession } from "./session";
 import { db_users } from "~/lib/db";
 
-export const register = action(async (form: FormData) => {
+export const register = async (form: FormData) => {
   "use server";
   const { email, password, pseudo } = userSchema.parse({
     email: form.get("email"),
@@ -17,8 +17,12 @@ export const register = action(async (form: FormData) => {
   const hashed = await bcrypt.hash(password, 10);
   await db_users.insertOne({ email, password: hashed, pseudo });
   
+  return { success: true, email, pseudo };
+};
+export const registerAction = action(async (form: FormData) => {
+  await register(form);
   throw redirect("/login");
-}, "register");
+});
 
 
 
@@ -41,20 +45,24 @@ export const login = async (formData: FormData) => {
   }
   const session = await getSession();
   await session.update({ email });
-  return redirect("/"); // Redirige vers la page d'accueil après connexion
+  return { success: true, email };
 };
 
-export const loginAction = action(login);
+export const loginAction = action(async (form: FormData) => {
+  await login(form);
+  throw redirect("/");
+});
 
 
-
-
-
-export const logout = action(async () => {
+export const logout = async () => {
   "use server";
   const session = await getSession();
   await session.clear();
   return redirect("/");
+};
+export const logoutAction = action(async() => {
+  await logout();
+  throw redirect("/");
 });
 
 

@@ -1,6 +1,6 @@
 // src/components/RegisterForm.tsx
 import { createSignal } from "solid-js";
-import { register } from "~/lib/auth/user";
+import { registerAction } from "~/lib/auth/user";
 import { Field } from "~/components/Field";
 
 export default function RegisterForm() {
@@ -9,7 +9,7 @@ export default function RegisterForm() {
   return (
     <form
       method="post"
-      action={register}
+      action={registerAction}
       class="bg-white max-w-md mx-auto p-8 rounded-2xl shadow-xl space-y-6 border border-gray-200"
     >
   
