@@ -1,15 +1,14 @@
 import { type APIEvent } from "@solidjs/start/server";
-import { login } from "~/lib/auth/user";
+import { register } from "~/lib/auth/user";
 
 
 export async function POST(event: APIEvent) {
-  console.log("POST /api/login");
+  console.log("POST /api/register");
   
   try {
-    console.log("POST /api/login");
     const formData = await event.request.formData();
     console.log("formData", formData);
-    const result = await login(formData);
+    const result = await register(formData);
     console.log("result", result);
     return new Response(JSON.stringify(result), {
       status: 201,
