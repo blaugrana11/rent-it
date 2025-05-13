@@ -9,7 +9,7 @@ import fs from "fs/promises";
 import path from "path";
 
 export const getlistingSchema = z.object({
-  _id: z.instanceof(ObjectId).optional().transform((val) => val?.toString()),
+  _id: z.any().optional().transform((val) => val?.toString()),
   title: z.string().min(3, "Le titre doit contenir au moins 3 caractères"),
   description: z.string().min(10, "La description est trop courte"),
   price: z.coerce.number().min(0, "Le prix doit être positif"),
@@ -18,6 +18,8 @@ export const getlistingSchema = z.object({
     z.array(z.string()),
     z.string().transform(value => [value]) // Transforme une chaîne unique en tableau
   ]).optional(),
+  userId: z.string().optional(),
+  createdAt: z.date().optional(), 
 }); // Images sous forme d'URL
 
 const listingSchema = z.object({
@@ -159,8 +161,7 @@ export const createListing = async (form: FormData) => {
     return { error: String(error) };
   }
 }
-export const createListingAction = action(createListing);
-//export const createListingAction = action(createListing, "createListing");
+export const createListingAction = action(createListing, "createListing");
 
 
 // Mettre à jour une annonce
@@ -207,7 +208,7 @@ export const updateListing = async (id: string, form: FormData) => {
   return { message: "Annonce mise à jour", updateData: validatedData };
 };
 
-export const updateListingAction = action(updateListing);
+export const updateListingAction = action(updateListing, "updateListing");
 
 // Supprimer une annonce
 export const deleteListing = async (id: string) => {
@@ -224,4 +225,4 @@ export const deleteListing = async (id: string) => {
   }
   return await db_ads.deleteOne({ _id: objectId });
 };
-export const deleteListingAction = action(deleteListing);
+export const deleteListingAction = action(deleteListing, "deleteListing");

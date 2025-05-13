@@ -5,7 +5,10 @@ import { action, query, redirect, reload } from "@solidjs/router";
 import { userSchema, userSchemaId } from "./schema";
 import { getSession } from "./session";
 import { db_users, db_ads } from "~/lib/db";
+import { ObjectId } from "mongodb";
+
 import { log } from "console";
+import { getlistingSchema } from "../listing";
 
 export const register = async (form: FormData) => {
   "use server";
@@ -50,6 +53,7 @@ export const login = async (formData: FormData) => {
 };
 
 export const loginAction = action(async (form: FormData) => {
+  "use server"
   await login(form);
   throw redirect("/");
 });
@@ -81,7 +85,7 @@ export const getUserId = query(async () => {
   const user = await db_users.findOne({ email: session.data.email });
   if (!user) return null;
   return userSchemaId.parse(user); 
-}, "getUser");
+}, "getUserId");
 
 
 
@@ -96,3 +100,27 @@ export const getUserListings = query(async () => {
   const listings = await db_ads.find({ userId: user._id.toString() }).toArray();
   return listings;
 }, "getUserListings");
+
+
+export const getUserById = query(async (userId:string) => {
+  "use server";
+  console.log("hello", userId);
+  const id = new ObjectId(userId);
+  console.log("getUserById", id);
+  const user = await db_users.findOne({ _id: id});
+  console.log(JSON.stringify(user, null, 2))
+  if (!user) return null;
+  return userSchemaId.parse(user); 
+}, "getUserById");
+
+
+
+export const getUserListingsById = query(async (idUser:string) => {
+  "use server";
+    
+  // Récupérer les annonces de l'utilisateur
+  const data = await db_ads.find({ userId: idUser }).toArray();
+  
+  const listings = getlistingSchema.array().parse(data);
+  return listings;
+}, "getUserListingsById");
