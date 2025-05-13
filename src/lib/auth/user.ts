@@ -2,9 +2,10 @@
 
 import bcrypt from "bcryptjs";
 import { action, query, redirect, reload } from "@solidjs/router";
-import { userSchema } from "./schema";
+import { userSchema, userSchemaId } from "./schema";
 import { getSession } from "./session";
-import { db_users } from "~/lib/db";
+import { db_users, db_ads } from "~/lib/db";
+import { log } from "console";
 
 export const register = async (form: FormData) => {
   "use server";
@@ -60,10 +61,7 @@ export const logout = async () => {
   await session.clear();
   return redirect("/");
 };
-export const logoutAction = action(async() => {
-  await logout();
-  throw redirect("/");
-});
+export const logoutAction = action(logout, "logout");
 
 
 export const getUser = query(async () => {
@@ -74,3 +72,27 @@ export const getUser = query(async () => {
   if (!user) return null;
   return userSchema.parse(user); 
 }, "getUser");
+
+
+export const getUserId = query(async () => {
+  "use server";
+  const session = await getSession();
+  if (!session.data.email) return null;
+  const user = await db_users.findOne({ email: session.data.email });
+  if (!user) return null;
+  return userSchemaId.parse(user); 
+}, "getUser");
+
+
+
+export const getUserListings = query(async () => {
+  "use server";
+  
+  // Récupérer l'utilisateur connecté
+  const user = await getUserId();
+  if (!user) return null;
+  
+  // Récupérer les annonces de l'utilisateur
+  const listings = await db_ads.find({ userId: user._id.toString() }).toArray();
+  return listings;
+}, "getUserListings");
