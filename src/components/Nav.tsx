@@ -1,13 +1,14 @@
 //src/components/Nav.tsx
 import { useLocation, createAsync } from "@solidjs/router";
 import LogoutButton from "~/components/LogoutButton";
-import { getUser } from "~/lib/auth/user";
+import { getUserId } from "~/lib/auth/user";
 import { Show } from "solid-js"
 import { User } from "lucide-solid";
+import { A } from "@solidjs/router";
 
 export default function Nav() {
   const location = useLocation();
-  const user = createAsync(() => getUser());
+  const user = createAsync(() => getUserId());
   const active = (path: string) =>
     path == location.pathname ? "border-indigo-500" : "border-transparent hover:border-indigo-400";
   
@@ -51,10 +52,12 @@ export default function Nav() {
 
             <Show when={user()}>
               <div class="flex items-center space-x-3">
-                <div class="flex items-center bg-white text-indigo-600 font-semibold px-3 py-1 rounded-full shadow text-sm">
+              <A href={`/profile/${user()!._id}`} class="no-underline">
+                <div class="flex items-center bg-white text-indigo-600 font-semibold px-3 py-1 rounded-full shadow text-sm hover:bg-indigo-50 cursor-pointer transition">
                   <User class="w-4 h-4 mr-1" />
-                  {user()?.pseudo}
+                  {user()!.pseudo}
                 </div>
+              </A>
                 <LogoutButton />
               </div>
             </Show>
