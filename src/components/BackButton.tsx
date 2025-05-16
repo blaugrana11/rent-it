@@ -1,8 +1,20 @@
+import { useNavigate } from "@solidjs/router";
+
 export default function BackButton() {
+  const navigate = useNavigate();
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      history.back();
+    } else {
+      navigate("/");
+    }
+  };
+
   return (
     <button
       type="button"
-      onClick={() => history.back()}
+      onClick={handleBack}
       class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-gray-700 shadow hover:bg-gray-100 transition"
     >
       <svg
