@@ -223,6 +223,11 @@ export const deleteListing = async (id: string) => {
       await fs.unlink(filePath).catch(() => {}); // Supprime le fichier si existant
     }
   }
-  return await db_ads.deleteOne({ _id: objectId });
+  const result = await db_ads.deleteOne({ _id: objectId });
+  if (result.deletedCount === 1) {
+    return { result, message: "Annonce supprimée avec succès" };
+  } else {
+    return { result, message: "Aucune annonce trouvée avec cet ID" };
+  }
 };
 export const deleteListingAction = action(deleteListing, "deleteListing");
