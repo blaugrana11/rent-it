@@ -3,6 +3,7 @@ import { createAsync, RouteDefinition, useParams } from "@solidjs/router";
 import { getListingById } from "~/lib/listing";
 import { Show, Suspense, ErrorBoundary, createSignal, createEffect } from "solid-js";
 import Layout from "~/components/Layout";
+import BackButton from "~/components/BackButton";
 
 // Définition de la route avec préchargement
 export const route = {
@@ -51,15 +52,7 @@ export default function ListingDetailPage() {
           <ErrorBoundary fallback={<div class="text-red-500 text-center">Ouch, an error has occured...</div>}>
             <Suspense fallback={<div class="text-center text-gray-500">Ad loading...</div>}>
             <div class="p-2">
-              <a
-                href="/"
-                class="inline-flex items-center gap-2 bg-indigo-600 text-white font-medium px-6 py-2 rounded-lg shadow hover:bg-indigo-700 transition duration-150 ease-in-out"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" stroke="currentColor" fill="none">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
-                Back
-              </a>
+              <BackButton />
             </div>
 
               <Show when={listing()} fallback={<div class="text-center">Ad not found</div>}>
