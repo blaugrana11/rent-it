@@ -99,68 +99,63 @@ export const getListingById = query(async (id:string) => {
 }, "getListingById");
 
 // Ajouter une annonce
-// Ajouter une annonce 
 export const createListing = async (form: FormData) => {
   "use server";
   try {
-    console.log("Données reçues pour création:", form);
-    
-    // Récupérer l'utilisateur connecté
+    const title = form.get("title")?.toString() ?? "";
+    const description = form.get("description")?.toString() ?? "";
+    const price = Number(form.get("price") ?? 0);
+    const condition = form.get("condition")?.toString() ?? "";
+    const imageFiles = form.getAll("images") as File[];
+
     const session = await getSession();
     if (!session.data.email) {
-      return { error: "User not authenticated" };
-    }
-    
-    // Trouver l'utilisateur dans la base de données
-    const user = await db_users.findOne({ email: session.data.email });
-    if (!user) {
-      return { error: "User not found" };
+      return null; // retour minimal : évite erreur de sérialisation
     }
 
-    // const user = createAsync(() => getUserId());    
-    // Extraire les données du formulaire sans traiter les images
+    const user = await db_users.findOne({ email: session.data.email });
+    if (!user) {
+      return null;
+    }
+
     const listingData = {
-      title: form.get("title"),
-      description: form.get("description"),
-      price: Number(form.get("price")),
-      condition: form.get("condition"),
-      images: [], // Vide pour l'instant
-      userId: user._id.toString(), // Ajouter l'ID de l'utilisateur
-      createdAt: new Date(), // Facultatif: ajouter la date de création
+      title,
+      description,
+      price,
+      condition,
+      images: [], // temporairement vide
+      userId: user._id.toString(),
+      createdAt: new Date(),
     };
-    
-    console.log("Données extraites du formulaire:", listingData);
-    
-    // Mettre à jour le schéma Zod pour inclure userId
-    // Vous devrez modifier listingSchema ailleurs dans votre code
+
+    // Valide les champs de base sans les images
     const validatedListing = listingSchema.parse(listingData);
-    
-    console.log("Données validées:", validatedListing);
-    
-    // Si la validation réussit, on traite les images
-    const imageFiles = form.getAll("images") as File[];
-    console.log("Images reçues:", imageFiles);
+
     const imagePaths: string[] = [];
-    
+
     for (const file of imageFiles) {
       const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
       const fileName = `${Date.now()}-${file.name}`;
       const filePath = path.join(process.cwd(), "public/uploads", fileName);
-      
+
       await fs.writeFile(filePath, buffer);
       imagePaths.push(`/uploads/${fileName}`);
     }
-    
-    validatedListing.images = imagePaths; // Ajouter les images validées
-    
+
+    // Ajoute les chemins d'image à l'annonce validée
+    validatedListing.images = imagePaths;
+
     // Insertion dans la base de données
-    const result = await db_ads.insertOne(validatedListing);
-    return { insertedId: result.insertedId };
+    await db_ads.insertOne(validatedListing);
+
+    // Ne retourne rien (ou juste un booléen)
+    return { success: true };
   } catch (error) {
-    return { error: String(error) };
+    console.error("Erreur dans createListing:", error);
+    return null; // Ne retourne pas l'erreur pour éviter la sérialisation
   }
-}
+};
 export const createListingAction = action(createListing, "createListing");
 
 

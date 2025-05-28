@@ -1,122 +1,80 @@
-import { createSignal, createEffect, For, Show, JSX } from "solid-js";
-import { useSubmission } from "@solidjs/router";
+import { createSignal, createEffect, For, Show } from "solid-js";
+import { useSubmission, useNavigate } from "@solidjs/router";
 import { createListingAction } from "~/lib/listing";
 import { Field } from "~/components/Field";
 
-
 function AddListingForm() {
-  let fileInput: HTMLInputElement;
+  const navigate = useNavigate();
   const submission = useSubmission(createListingAction);
-  const [imageFiles, setImageFiles] = createSignal<File[]>([]);
-  const [previewUrls, setPreviewUrls] = createSignal<
-    { id: string; url: string }[]
-  >([]);
-  const [isDragging, setIsDragging] = createSignal(false);
-
-  // Effect to clean up object URLs on component unmount
+  const [files, setFiles] = createSignal<File[]>([]);
+  const [previewUrls, setPreviewUrls] = createSignal<string[]>([]);
+  const [success, setSuccess] = createSignal(false);
+  
   createEffect(() => {
-    return () => {
-      previewUrls().forEach((item) => URL.revokeObjectURL(item.url));
-    };
-  });
-
-  const handleFiles = (files: FileList | null) => {
-    if (!files || files.length === 0) return;
-
-    const newFiles = Array.from(files).filter((file) =>
-      file.type.startsWith("image/")
-    );
-    if (newFiles.length === 0) return;
-
-    // Add new files to existing ones
-    const updatedFiles = [...imageFiles(), ...newFiles];
-    setImageFiles(updatedFiles);
-
-    // Generate preview URLs for new files
-    const newPreviews = newFiles.map((file) => ({
-      id: crypto.randomUUID(), // Generate unique ID for each image
-      url: URL.createObjectURL(file),
-    }));
-
-    setPreviewUrls([...previewUrls(), ...newPreviews]);
-  };
-
+  if (submission.result && !submission.pending && submission.result.success) {
+    setSuccess(true);
+    setTimeout(() => {
+      navigate("/", { replace: true });
+    }, 1500); // Attendre 800ms avant redirection
+  }
+});
 
   const handleInputChange = (e: Event) => {
-    const fileInput = e.target as HTMLInputElement;
-    handleFiles(fileInput.files);
-    //fileInput.value = ""; // Reset input to allow selecting the same file again
+    const input = e.target as HTMLInputElement;
+    if (!input.files) return;
+
+    // Nettoyer les anciennes URLs
+    previewUrls().forEach((url) => URL.revokeObjectURL(url));
+
+    const newFiles = Array.from(input.files);
+    setFiles(newFiles);
+    setPreviewUrls(newFiles.map((file) => URL.createObjectURL(file)));
   };
 
-  const handleDragOver = (e: DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
+  const removeImage = (index: number) => {
+    const newFiles = [...files()];
+    const newUrls = [...previewUrls()];
 
-  const handleDragLeave = (e: DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
+    // Révoquer l’ancienne URL
+    URL.revokeObjectURL(newUrls[index]);
 
-  const handleDrop = (e: DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    if (e.dataTransfer) {
-      // Créer un nouvel objet DataTransfer
-      const dataTransfer = new DataTransfer();
-      
-      // Filtrer et ajouter uniquement les fichiers image
-      Array.from(e.dataTransfer.files)
-        .filter(file => file.type.startsWith('image/'))
-        .forEach(file => dataTransfer.items.add(file));
-      
-      // Vérifiez que fileInput existe avant de l'utiliser
-      if (fileInput!) {
-        fileInput.files = dataTransfer.files;
-        
-        // Appeler handleFiles pour mettre à jour l'état
-        handleFiles(dataTransfer.files);
-      }
+    newFiles.splice(index, 1);
+    newUrls.splice(index, 1);
+
+    setFiles(newFiles);
+    setPreviewUrls(newUrls);
+
+    // Mettre à jour input.files
+    const input = document.getElementById("images") as HTMLInputElement;
+    if (input) {
+      const dt = new DataTransfer();
+      newFiles.forEach((file) => dt.items.add(file));
+      input.files = dt.files;
     }
-  };
-
-  const removeImage = (id: string, index: number) => {
-    // Remove file from imageFiles
-    const filesArray = [...imageFiles()];
-    filesArray.splice(index, 1);
-    setImageFiles(filesArray);
-
-    // Remove preview URL
-    const preview = previewUrls().find((item) => item.id === id);
-    if (preview) {
-      URL.revokeObjectURL(preview.url);
-    }
-
-    setPreviewUrls((prev) => prev.filter((item) => item.id !== id));
   };
 
   return (
     <div class="max-w-4xl mx-auto my-8 px-4">
-      {/* Success notification */}
-      <div
-        id="success-message"
-        class="hidden mb-6 p-4 rounded-lg bg-green-100 border-l-4 border-green-500 text-green-700"
-      >
-        <div class="flex">
-          <div class="flex-shrink-0">
-            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fill-rule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                clip-rule="evenodd"
-              />
-            </svg>
-          </div>
-          <div class="ml-3">
-            <p class="text-sm font-medium">Ad successfully created !</p>
-          </div>
-        </div>
+      <Show when={success()}>
+  <div class="mb-6 p-4 rounded-lg bg-green-100 border-l-4 border-green-500 text-green-700">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+          <path
+            fill-rule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+            clip-rule="evenodd"
+          />
+        </svg>
       </div>
+      <div class="ml-3">
+        <p class="text-sm font-medium">
+          Your ad has been published successfully!
+        </p>
+      </div>
+    </div>
+  </div>
+</Show>
 
       <form
         action={createListingAction}
@@ -153,59 +111,27 @@ function AddListingForm() {
               <option value="mauvais état">Poor condition</option>
             </Field>
           </div>
+
           <div class="mb-8">
             <label class="block text-sm font-medium text-gray-700 mb-2">
               Product photos
             </label>
 
-            <div
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              
-              class={`border-2 border-dashed rounded-lg p-6 text-center transition-colors duration-200 ${
-                isDragging()
-                  ? "border-indigo-500 bg-indigo-50"
-                  : "border-gray-300 hover:border-indigo-500"
-              }`}
-            >
-              <input
-                ref={fileInput!}
-                id="images"
-                name="images"
-                type="file"
-                multiple
-                accept="image/*"
-                class="hidden"
-                onChange={handleInputChange}
-              />
-              <label for="images" class="cursor-pointer">
-                <div class="space-y-2">
-                  <svg
-                    class="mx-auto h-12 w-12 text-gray-400"
-                    stroke="currentColor"
-                    fill="none"
-                    viewBox="0 0 48 48"
-                  >
-                    <path
-                      d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                  <div class="text-sm text-gray-600">
-                    <span class="font-medium text-indigo-600 hover:underline">
-                      Click to add images
-                    </span>{" "}
-                    or drag and drop
-                  </div>
-                  <p class="text-xs text-gray-500">PNG, JPG, JPEG up to 10MB</p>
-                </div>
-              </label>
-            </div>
+            <input
+              id="images"
+              name="images"
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={handleInputChange}
+              class="block w-full text-sm text-gray-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-full file:border-0
+                file:text-sm file:font-semibold
+                file:bg-indigo-50 file:text-indigo-700
+                hover:file:bg-indigo-100"
+            />
 
-            {/* Image previews */}
             <Show when={previewUrls().length > 0}>
               <div class="mt-4">
                 <p class="text-sm text-gray-700 mb-2">
@@ -213,32 +139,20 @@ function AddListingForm() {
                 </p>
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                   <For each={previewUrls()}>
-                    {(preview, index) => (
+                    {(url, index) => (
                       <div class="relative rounded-lg overflow-hidden h-24 bg-gray-100 group">
                         <img
-                          src={preview.url}
+                          src={url}
                           alt="Preview"
                           class="w-full h-full object-cover"
                         />
                         <button
                           type="button"
-                          onClick={() => removeImage(preview.id, index())}
-                          class="absolute right-2 top-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                          onClick={() => removeImage(index())}
+                          class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 text-xs opacity-0 group-hover:opacity-100 transition"
+                          aria-label="Remove image"
                         >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="h-4 w-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M6 18L18 6M6 6l12 12"
-                            />
-                          </svg>
+                          ✕
                         </button>
                       </div>
                     )}
@@ -248,7 +162,6 @@ function AddListingForm() {
             </Show>
           </div>
 
-          {/* Submit button */}
           <div class="text-center">
             <button
               type="submit"
@@ -273,6 +186,5 @@ const Header = () => (
     </p>
   </div>
 );
-
 
 export default AddListingForm;
