@@ -40,7 +40,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <Layout>
+    <Layout protected>
       <div class="min-h-screen bg-gray-100 py-12">
         <div class="max-w-7xl mx-auto px-6">
           <Suspense fallback={<p class="text-center text-gray-500">Loading profile...</p>}>
