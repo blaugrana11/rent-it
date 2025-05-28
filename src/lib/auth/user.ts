@@ -1,14 +1,20 @@
 // src/lib/auth/user.ts
 
 import bcrypt from "bcryptjs";
-import { action, query, redirect, reload } from "@solidjs/router";
+import { action, query, redirect } from "@solidjs/router";
 import { userSchema, userSchemaId } from "./schema";
 import { getSession } from "./session";
 import { db_users, db_ads } from "~/lib/db";
 import { ObjectId } from "mongodb";
-
-import { log } from "console";
 import { getlistingSchema } from "../listing";
+
+declare global {
+  var userTokens: Map<string, {
+    email: string;
+    pseudo: string;
+    createdAt: Date;
+  }> | undefined;
+}
 
 export const register = async (form: FormData) => {
   "use server";
@@ -34,22 +40,44 @@ export const registerAction = action(async (form: FormData) => {
 export const login = async (formData: FormData) => {
   "use server";
   console.log("login", formData);
+  
   const { email, password } = userSchema.parse({
     email: formData.get("email"),
     password: formData.get("password"),
   });
-  console.log("login", email, password);
+  
   const record = await db_users.findOne({ email });
   if (!record) {
     throw new Error("Utilisateur non trouvé");
   }
+  
   const isValid = await bcrypt.compare(password, record.password);
   if (!isValid) {
     throw new Error("Mot de passe incorrect");
   }
+  
+  console.log("login success", email);
+  
+  // Créer la session (pour l'app web)
   const session = await getSession();
   await session.update({ email });
-  return { success: true, email };
+  
+  // Créer aussi un token (pour l'app mobile)
+  const token = crypto.randomUUID();
+  global.userTokens = global.userTokens || new Map();
+  global.userTokens.set(token, { 
+    email: record.email, 
+    pseudo: record.pseudo,
+    createdAt: new Date()
+  });
+  
+  // Retourner les deux informations
+  return { 
+    success: true, 
+    email,
+    token, // Pour l'app mobile
+    user: { email: record.email, pseudo: record.pseudo }
+  };
 };
 
 export const loginAction = action(async (form: FormData) => {
@@ -70,12 +98,22 @@ export const logoutAction = action(logout, "logout");
 
 export const getUser = query(async () => {
   "use server";
+  console.log("getUser called");
   const session = await getSession();
-  if (!session.data.email) return null;
+  console.log("Session data:", session.data);
+  
+  if (!session.data.email) {
+    console.log("No email in session");
+    return null;
+  }
+  
   const user = await db_users.findOne({ email: session.data.email });
+  console.log("User found in DB:", user ? "yes" : "no");
+  
   if (!user) return null;
-  return userSchema.parse(user); 
+  return userSchema.parse(user);
 }, "getUser");
+
 
 
 export const getUserId = query(async () => {

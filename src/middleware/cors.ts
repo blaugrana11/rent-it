@@ -3,7 +3,7 @@ import { createMiddleware } from '@solidjs/start/middleware'
 export default createMiddleware({
   onBeforeResponse: (event) => {
     // Obtenir l'origine de la requête
-    const origin = event.request.headers.get('Origin') || 'http://localhost:8081';
+    const origin = event.request.headers.get('Origin') || '*';
     
     // Configurer les en-têtes CORS avec l'origine spécifique au lieu de '*'
     event.response.headers.set('Access-Control-Allow-Origin', origin);
