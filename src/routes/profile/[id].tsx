@@ -1,4 +1,4 @@
-import { useParams, createAsync } from "@solidjs/router";
+import { useParams, createAsync, useAction } from "@solidjs/router";
 import { For, Show, Suspense, createSignal, createEffect } from "solid-js";
 import { getUserById, getUserListingsById } from "~/lib/auth/user";
 import type { RouteDefinition } from "@solidjs/router";
@@ -18,6 +18,8 @@ export default function ProfilePage() {
   // Signaux locaux pour gérer les annonces
   const [listings, setListings] = createSignal([]);
 
+  const deleteAction = useAction(deleteListingAction);
+
   // Remplir les annonces quand l'userId change
   createEffect(() => {
     getUserListingsById(userId()).then(setListings);
@@ -27,7 +29,7 @@ export default function ProfilePage() {
     const confirmed = confirm("Are you sure you want to delete this listing?");
     if (!confirmed) return;
     console.log("Deleting listing with ID:", id);
-    const res = await deleteListingAction(id);
+    const res = await deleteAction(id);
     console.log("Delete response:", res);
     if (res.message === "Annonce supprimée avec succès") {
       // Retirer l’annonce supprimée localement
