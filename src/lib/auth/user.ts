@@ -10,6 +10,7 @@ import { getlistingSchema } from "../listing";
 
 declare global {
   var userTokens: Map<string, {
+    _id?: string;
     email: string;
     pseudo: string;
     createdAt: Date;
@@ -47,6 +48,7 @@ export const login = async (formData: FormData) => {
   });
   
   const record = await db_users.findOne({ email });
+  const id_string = record?._id.toString();
   if (!record) {
     throw new Error("Utilisateur non trouvé");
   }
@@ -66,6 +68,7 @@ export const login = async (formData: FormData) => {
   const token = crypto.randomUUID();
   global.userTokens = global.userTokens || new Map();
   global.userTokens.set(token, { 
+    _id: id_string,
     email: record.email, 
     pseudo: record.pseudo,
     createdAt: new Date()

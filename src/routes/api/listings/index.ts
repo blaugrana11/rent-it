@@ -1,6 +1,11 @@
 import { type APIEvent } from "@solidjs/start/server";
 import { getListings, createListing } from "~/lib/listing";
-
+import { db_users, db_ads } from "~/lib/db"; 
+import { listingSchema } from "~/lib/listing"; 
+import { ZodError } from "zod";
+import { getSession } from "~/lib/auth/session";
+import path from "path";
+import fs from "fs/promises";
 
 export async function GET(event: APIEvent) {
   try {
@@ -43,17 +48,6 @@ export async function GET(event: APIEvent) {
 
 
 
-
-
-
-
-// src/routes/api/listings.ts (ou le chemin approprié dans votre structure)
-import { db_users, db_ads } from "~/lib/db"; // Ajustez le chemin selon votre structure
-import { listingSchema } from "~/lib/listing"; // Ajustez le chemin
-import { ZodError } from "zod";
-import { getSession } from "~/lib/auth/session"; // Ajustez le chemin
-import path from "path";
-import fs from "fs/promises";
 
 // Fonction utilitaire pour obtenir l'utilisateur (web ou mobile)
 async function getUserFromRequest(event: APIEvent) {
