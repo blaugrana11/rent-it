@@ -22,7 +22,7 @@ export const getlistingSchema = z.object({
   createdAt: z.date().optional(), 
 }); // Images sous forme d'URL
 
-const listingSchema = z.object({
+export const listingSchema = z.object({
   title: z.string().min(3, "Le titre doit contenir au moins 3 caractères"),
   description: z.string().min(10, "La description est trop courte"),
   price: z.coerce.number().min(0, "Le prix doit être positif"),
