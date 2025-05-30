@@ -1,11 +1,15 @@
-import { db_ads } from "~/lib/db";
+import { db_ads, db_users } from "~/lib/db";
+import { getUserId } from "~/lib/auth/user";
+import { getSession } from "~/lib/auth/session";
+import { createAsync } from "@solidjs/router";
 import { action, query } from "@solidjs/router";
-import { number, z } from "zod";
+import { z } from "zod";
 import { ObjectId } from "mongodb";
 import fs from "fs/promises";
 import path from "path";
 
-const listingSchema = z.object({
+export const getlistingSchema = z.object({
+  _id: z.any().optional().transform((val) => val?.toString()),
   title: z.string().min(3, "Le titre doit contenir au moins 3 caractères"),
   description: z.string().min(10, "La description est trop courte"),
   price: z.coerce.number().min(0, "Le prix doit être positif"),
@@ -14,23 +18,70 @@ const listingSchema = z.object({
     z.array(z.string()),
     z.string().transform(value => [value]) // Transforme une chaîne unique en tableau
   ]).optional(),
+  userId: z.string().optional(),
+  createdAt: z.date().optional(), 
 }); // Images sous forme d'URL
 
-export const getListings = query(async () => {
+export const listingSchema = z.object({
+  title: z.string().min(3, "Le titre doit contenir au moins 3 caractères"),
+  description: z.string().min(10, "La description est trop courte"),
+  price: z.coerce.number().min(0, "Le prix doit être positif"),
+  condition: z.enum(["neuf", "comme neuf", "bon état", "état moyen", "mauvais état"]).optional(),
+  images: z.union([
+    z.array(z.string()),
+    z.string().transform(value => [value]) // Transforme une chaîne unique en tableau
+  ]).optional(),
+  userId: z.string(),
+  createdAt: z.date().optional(), 
+})
+
+// Mise à jour de la fonction getListings pour prendre en charge la recherche
+export const getListings = query(async (searchParams?: { query?: string | undefined, condition?: string | undefined, minPrice?: number | undefined, maxPrice?: number | undefined }) => {
   "use server";
   
   try {
-    const rawData = await db_ads.find().toArray();
-    const data = listingSchema.array().parse(rawData);
+    let filter: any = {};
+    
+    // Construire le filtre de recherche si des paramètres sont fournis
+    if (searchParams) {
+      // Recherche textuelle (dans le titre et la description)
+      if (searchParams.query && searchParams.query.trim() !== '') {
+        filter.$or = [
+          { title: { $regex: searchParams.query, $options: 'i' } },
+          { description: { $regex: searchParams.query, $options: 'i' } }
+        ];
+      }
+      
+      // Filtre par état/condition
+      if (searchParams.condition) {
+        filter.condition = searchParams.condition;
+      }
+      
+      // Filtre par prix
+      let priceFilter = {};
+      if (searchParams.minPrice !== undefined) {
+        priceFilter = { ...priceFilter, $gte: searchParams.minPrice };
+      }
+      if (searchParams.maxPrice !== undefined) {
+        priceFilter = { ...priceFilter, $lte: searchParams.maxPrice };
+      }
+      
+      if (Object.keys(priceFilter).length > 0) {
+        filter.price = priceFilter;
+      }
+    }
+    
+    // Exécuter la requête avec le filtre
+    const rawData = await db_ads.find(filter).toArray();
+    
+    const data = getlistingSchema.array().parse(rawData);
     return data
   } catch (error) {
     if (error instanceof z.ZodError) {
       console.error("Erreur de validation Zod:", error.errors);
-      // Vous pouvez retourner une erreur plus conviviale ici
       throw new Error("Données invalides dans la base de données");
     }
     
-    // Pour les autres types d'erreurs
     console.error("Erreur lors de la récupération des annonces:", error);
     throw error;
   }
@@ -40,55 +91,72 @@ export const getListings = query(async () => {
 export const getListingById = query(async (id:string) => {
   "use server";
   const objectId = new ObjectId(id); // Assurer que `id` est sous forme de string
-  const data = await db_ads.findOne({ _id: objectId });
-  return data
+  const rawData = await db_ads.findOne({ _id: objectId });
+  if (!rawData) return null;
+
+  const data = getlistingSchema.parse(rawData);
+  return data;
 }, "getListingById");
 
 // Ajouter une annonce
 export const createListing = async (form: FormData) => {
   "use server";
   try {
-  console.log("Données reçues pour création:", form);
-  // Extraire les données du formulaire sans traiter les images
-  const listingData = {
-    title: form.get("title"),
-    description: form.get("description"),
-    price: Number(form.get("price")),
-    condition: form.get("condition"),
-    images: [], // Vide pour l'instant
-  };
-  console.log("Données extraites du formulaire:", listingData);
-  //Valider les données avec Zod AVANT d'enregistrer les images
-  const validatedListing = listingSchema.parse(listingData);
-  console.log("Données validées:", validatedListing);
-  //Si la validation réussit, on traite les images
-  const imageFiles = form.getAll("images") as File[];
-  console.log("Images reçues:", imageFiles);
-  const imagePaths: string[] = [];
+    const title = form.get("title")?.toString() ?? "";
+    const description = form.get("description")?.toString() ?? "";
+    const price = Number(form.get("price") ?? 0);
+    const condition = form.get("condition")?.toString() ?? "";
+    const imageFiles = form.getAll("images") as File[];
 
-  for (const file of imageFiles) {
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    const fileName = `${Date.now()}-${file.name}`;
-    const filePath = path.join(process.cwd(), "public/uploads", fileName);
+    const session = await getSession();
+    if (!session.data.email) {
+      return null; // retour minimal : évite erreur de sérialisation
+    }
 
-    await fs.writeFile(filePath, buffer);
-    imagePaths.push(`/uploads/${fileName}`);
+    const user = await db_users.findOne({ email: session.data.email });
+    if (!user) {
+      return null;
+    }
+
+    const listingData = {
+      title,
+      description,
+      price,
+      condition,
+      images: [], // temporairement vide
+      userId: user._id.toString(),
+      createdAt: new Date(),
+    };
+
+    // Valide les champs de base sans les images
+    const validatedListing = listingSchema.parse(listingData);
+
+    const imagePaths: string[] = [];
+
+    for (const file of imageFiles) {
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const fileName = `${Date.now()}-${file.name}`;
+      const filePath = path.join(process.cwd(), "public/uploads", fileName);
+
+      await fs.writeFile(filePath, buffer);
+      imagePaths.push(`/uploads/${fileName}`);
+    }
+
+    // Ajoute les chemins d'image à l'annonce validée
+    validatedListing.images = imagePaths;
+
+    // Insertion dans la base de données
+    await db_ads.insertOne(validatedListing);
+
+    // Ne retourne rien (ou juste un booléen)
+    return { success: true };
+  } catch (error) {
+    console.error("Erreur dans createListing:", error);
+    return null; // Ne retourne pas l'erreur pour éviter la sérialisation
   }
-
-  validatedListing.images = imagePaths; // Ajouter les images validées
-
-  //Insertion dans la base de données
-  const result = await db_ads.insertOne(validatedListing);
-  return { insertedId: result.insertedId };
-} catch (error) {
-  return { error: String(error) };
-  // console.error("Erreur lors de la création de l'annonce:", error);
-  // throw error;
-  };
-}
-export const createListingAction = action(createListing);
-//export const createListingAction = action(createListing, "createListing");
+};
+export const createListingAction = action(createListing, "createListing");
 
 
 // Mettre à jour une annonce
@@ -135,7 +203,7 @@ export const updateListing = async (id: string, form: FormData) => {
   return { message: "Annonce mise à jour", updateData: validatedData };
 };
 
-export const updateListingAction = action(updateListing);
+export const updateListingAction = action(updateListing, "updateListing");
 
 // Supprimer une annonce
 export const deleteListing = async (id: string) => {
@@ -150,6 +218,11 @@ export const deleteListing = async (id: string) => {
       await fs.unlink(filePath).catch(() => {}); // Supprime le fichier si existant
     }
   }
-  return await db_ads.deleteOne({ _id: objectId });
+  const result = await db_ads.deleteOne({ _id: objectId });
+  if (result.deletedCount === 1) {
+    return { result, message: "Annonce supprimée avec succès" };
+  } else {
+    return { result, message: "Aucune annonce trouvée avec cet ID" };
+  }
 };
-export const deleteListingAction = action(deleteListing);
+export const deleteListingAction = action(deleteListing, "deleteListing");
