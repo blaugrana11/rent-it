@@ -15,12 +15,12 @@ export default function ProfilePage() {
 
   const user = createAsync(() => getUserById(userId()));
   
-  // Signaux locaux pour gérer les annonces
+
   const [listings, setListings] = createSignal([]);
 
   const deleteAction = useAction(deleteListingAction);
 
-  // Remplir les annonces quand l'userId change
+
   createEffect(() => {
     getUserListingsById(userId()).then(setListings);
   });
@@ -32,7 +32,6 @@ export default function ProfilePage() {
     const res = await deleteAction(id);
     console.log("Delete response:", res);
     if (res.message === "Annonce supprimée avec succès") {
-      // Retirer l’annonce supprimée localement
       setListings((prev) => prev.filter((l: any) => l._id !== id));
     } else {
       alert("Failed to delete listing.");

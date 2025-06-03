@@ -6,7 +6,6 @@ import SearchBar from "./SearchBar";
 
 export const route = {
   preload({ location }) {
-    // Précharger avec les paramètres de recherche
     const params = new URLSearchParams(location.search);
     const searchParams = {
       query: params.get("query") ?? undefined,
@@ -21,8 +20,7 @@ export const route = {
 
 export default function ListingsPage() {
   const [searchParams] = useSearchParams();
-  
-  // Convertir les paramètres d'URL en format utilisable par getListings
+
   const searchOptions = () => ({
     query: typeof searchParams.query === 'string' ? searchParams.query : undefined,
     condition: typeof searchParams.condition === 'string' ? searchParams.condition : undefined,
@@ -30,9 +28,9 @@ export default function ListingsPage() {
     maxPrice: typeof searchParams.maxPrice === 'string' ? Number(searchParams.maxPrice) : undefined
   });
   
-  // Utiliser createAsync avec les paramètres de recherche
+
   const listingsResource = createAsync(() => getListings(searchOptions()));
-  // Fonction pour vérifier si les listings existent et ne sont pas vides
+
   const hasListings = () => {
     const data = listingsResource();
     return data !== undefined && Array.isArray(data) && data.length > 0;

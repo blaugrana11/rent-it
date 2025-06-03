@@ -18,7 +18,7 @@ export default function Nav() {
     <nav class="bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg">
       <div class="container mx-auto px-4">
         <div class="flex items-center justify-between h-16">
-          {/* Logo/Title */}
+
           <div class="flex-shrink-0">
             <a href="/" class="flex items-center">
               <span class="font-bold text-2xl text-white tracking-tight">
@@ -27,7 +27,6 @@ export default function Nav() {
             </a>
           </div>
 
-          {/* Navigation Links */}
           <div class="hidden md:block">
             <div class="ml-10 flex items-center space-x-8">
               <a
@@ -45,7 +44,7 @@ export default function Nav() {
             </div>
           </div>
 
-          {/* Buttons container: Place an Ad + Log in */}
+
           <div class="flex items-center space-x-4">
             <a
               href={user() ? "/create" : "/login"}

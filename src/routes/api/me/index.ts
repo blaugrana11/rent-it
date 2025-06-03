@@ -6,11 +6,11 @@ export async function GET(event: APIEvent) {
   try {
     console.log("GET /api/me");
     
-    // Vérifier d'abord si c'est une requête avec token (mobile)
+    // Vérifier d'abord si c'est une requête avec token
     const authHeader = event.request.headers.get('authorization');
     
     if (authHeader && authHeader.startsWith('Bearer ')) {
-      // Mode mobile avec token
+
       console.log("Mobile request with token");
       const token = authHeader.replace('Bearer ', '');
       
@@ -29,7 +29,7 @@ export async function GET(event: APIEvent) {
         headers: { "Content-Type": "application/json" }
       });
     } else {
-      // Mode web avec session (votre code existant)
+
       console.log("Web request with session");
       const user = await getUser();
       return new Response(JSON.stringify(user), {

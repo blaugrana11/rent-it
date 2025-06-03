@@ -3,7 +3,7 @@ import { type APIEvent } from "@solidjs/start/server";
 import { getUserListingsById } from "~/lib/auth/user";
 
 
-// Fonction helper pour récupérer l'utilisateur depuis le token
+
 async function getUserFromRequest(event: APIEvent) {
   const authHeader = event.request.headers.get('authorization');
   
@@ -18,7 +18,7 @@ async function getUserFromRequest(event: APIEvent) {
       return null;
     }
     
-    return userData; // Retourne directement les données du token
+    return userData; 
   }
   
   return null;
@@ -28,7 +28,7 @@ export async function GET(event: APIEvent) {
   try {
     console.log("GET /api/profile/[id]");
     
-    // Récupérer l'ID depuis l'URL
+
     const url = new URL(event.request.url);
     const pathSegments = url.pathname.split('/');
     const userId = pathSegments[pathSegments.length - 1]; // Dernier segment
@@ -42,7 +42,7 @@ export async function GET(event: APIEvent) {
     
     console.log("Requested user ID:", userId);
     
-    // Vérifier l'authentification
+
     const currentUser = await getUserFromRequest(event);
     if (!currentUser) {
       return new Response(JSON.stringify({ error: "Non authentifié" }), {
@@ -53,7 +53,7 @@ export async function GET(event: APIEvent) {
     
     console.log("Current user:", currentUser.email);
     
-    // Récupérer les annonces de l'utilisateur
+
     const listings = await getUserListingsById(userId);
     
     console.log(`Found ${listings.length} listings for user ${userId}`);
@@ -63,7 +63,7 @@ export async function GET(event: APIEvent) {
       listings,
       user: {
         id: userId,
-        // Tu peux ajouter d'autres infos utilisateur si nécessaire
+  
       }
     }), {
       headers: { "Content-Type": "application/json" }

@@ -60,11 +60,11 @@ export const login = async (formData: FormData) => {
   
   console.log("login success", email);
   
-  // Créer la session (pour l'app web)
+
   const session = await getSession();
   await session.update({ email });
   
-  // Créer aussi un token (pour l'app mobile)
+  // token pour app mobile
   const token = crypto.randomUUID();
   global.userTokens = global.userTokens || new Map();
   global.userTokens.set(token, { 
@@ -74,11 +74,11 @@ export const login = async (formData: FormData) => {
     createdAt: new Date()
   });
   
-  // Retourner les deux informations
+
   return { 
     success: true, 
     email,
-    token, // Pour l'app mobile
+    token,
     user: { email: record.email, pseudo: record.pseudo }
   };
 };
@@ -133,11 +133,11 @@ export const getUserId = query(async () => {
 export const getUserListings = query(async () => {
   "use server";
   
-  // Récupérer l'utilisateur connecté
+
   const user = await getUserId();
   if (!user) return null;
   
-  // Récupérer les annonces de l'utilisateur
+
   const listings = await db_ads.find({ userId: user._id.toString() }).toArray();
   return listings;
 }, "getUserListings");
@@ -159,7 +159,7 @@ export const getUserById = query(async (userId:string) => {
 export const getUserListingsById = query(async (idUser:string) => {
   "use server";
     
-  // Récupérer les annonces de l'utilisateur
+
   const data = await db_ads.find({ userId: idUser }).toArray();
   
   const listings = getlistingSchema.array().parse(data);

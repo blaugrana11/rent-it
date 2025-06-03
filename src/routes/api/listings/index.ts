@@ -49,13 +49,13 @@ export async function GET(event: APIEvent) {
 
 
 
-// Fonction utilitaire pour obtenir l'utilisateur (web ou mobile)
+
 async function getUserFromRequest(event: APIEvent) {
-  // Vérifier d'abord si c'est une requête avec token (mobile)
+
   const authHeader = event.request.headers.get('authorization');
   
   if (authHeader && authHeader.startsWith('Bearer ')) {
-    // Mode mobile avec token
+
     console.log("Mobile request with token");
     const token = authHeader.replace('Bearer ', '');
     
@@ -69,7 +69,7 @@ async function getUserFromRequest(event: APIEvent) {
     
     return user;
   } else {
-    // Mode web avec session
+
     console.log("Web request with session");
     const session = await getSession();
     if (!session.data.email) {
@@ -85,7 +85,7 @@ export async function POST(event: APIEvent) {
   try {
     console.log("POST /api/listings - Creating new listing");
     
-    // Vérifier l'authentification (web ou mobile)
+
     const user = await getUserFromRequest(event);
     if (!user) {
       return new Response(JSON.stringify({ error: "Non authentifié" }), {
@@ -94,7 +94,6 @@ export async function POST(event: APIEvent) {
       });
     }
 
-    // Récupérer les données du FormData
     const formData = await event.request.formData();
     
     const title = formData.get("title")?.toString() ?? "";
@@ -108,25 +107,25 @@ export async function POST(event: APIEvent) {
       description,
       price,
       condition,
-      images: [], // temporairement vide
+      images: [],
       userId: user._id.toString(),
       createdAt: new Date(),
     };
 
-    // Valide les champs de base sans les images
+
     const validatedListing = listingSchema.parse(listingData);
 
     const imagePaths: string[] = [];
 
-    // Traitement des images
+
     for (const file of imageFiles) {
-      if (file && file.size > 0) { // Vérifier que le fichier existe et n'est pas vide
+      if (file && file.size > 0) {
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
         const fileName = `${Date.now()}-${file.name}`;
         const filePath = path.join(process.cwd(), "public/uploads", fileName);
 
-        // Créer le dossier uploads s'il n'existe pas
+        
         const uploadsDir = path.join(process.cwd(), "public/uploads");
         await fs.mkdir(uploadsDir, { recursive: true });
 
@@ -135,10 +134,10 @@ export async function POST(event: APIEvent) {
       }
     }
 
-    // Ajoute les chemins d'image à l'annonce validée
+
     validatedListing.images = imagePaths;
 
-    // Insertion dans la base de données
+
     const result = await db_ads.insertOne(validatedListing);
 
     console.log("Listing created successfully:", result.insertedId);

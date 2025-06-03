@@ -5,7 +5,6 @@ import { Show, Suspense, ErrorBoundary, createSignal, createEffect } from "solid
 import Layout from "~/components/Layout";
 import BackButton from "~/components/BackButton";
 
-// Définition de la route avec préchargement
 export const route = {
   preload({ params }) {
     return getListingById(params.id);
@@ -16,11 +15,9 @@ export default function ListingDetailPage() {
   const params = useParams();
   const listing = createAsync(() => getListingById(params.id));
   
-  // État pour gérer l'image actuellement affichée
   const [currentImageIndex, setCurrentImageIndex] = createSignal(0);
   
 
-    // Fonctions pour naviguer entre les images
     const goToPrevImage = () => {
       const current = listing();
       if (!current || !current.images) return;
@@ -39,7 +36,7 @@ export default function ListingDetailPage() {
       );
     };
     
-    // Fonction pour changer directement à une image spécifique
+
     const goToImage = (index:number) => {
       setCurrentImageIndex(index);
     };
@@ -58,7 +55,7 @@ export default function ListingDetailPage() {
               <Show when={listing()} fallback={<div class="text-center">Ad not found</div>}>
                 {(data) => (
                   <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                    {/* En-tête avec le titre et le prix */}
+
                     <div class="p-6 border-b border-gray-200">
 
                       <div class="flex justify-between items-start">
@@ -66,7 +63,7 @@ export default function ListingDetailPage() {
                     
                       </div>
                       
-                      {/* Badge de condition */}
+
                       {data().condition && (
                         <div class="mt-2">
                           <span class="inline-block bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm">
@@ -76,10 +73,10 @@ export default function ListingDetailPage() {
                       )}
                     </div>
                     
-                    {/* Images avec carrousel */}
+
                     <Show when={(data().images ?? []).length > 0}>
                       <div class="relative">
-                        {/* Conteneur d'image principale avec navigation */}
+
                         <div class="w-full h-96 bg-gray-200 relative">
                           <img 
                             src={data().images?.[currentImageIndex()]} 
@@ -87,7 +84,7 @@ export default function ListingDetailPage() {
                             class="w-full h-full object-contain"
                           />
                           
-                          {/* Boutons de navigation */}
+
                           <Show when={(data().images ?? []).length > 1}>
                             <div class="absolute inset-0 flex items-center justify-between p-4">
                               <button 
@@ -110,7 +107,7 @@ export default function ListingDetailPage() {
                               </button>
                             </div>
                             
-                            {/* Indicateur de position */}
+
                             <div class="absolute bottom-4 left-0 right-0 flex justify-center">
                               <div class="bg-white/70 px-3 py-1 rounded-full text-sm">
                                 {currentImageIndex() + 1} / {data().images?.length ?? 0}
@@ -119,7 +116,7 @@ export default function ListingDetailPage() {
                           </Show>
                         </div>
                         
-                        {/* Miniatures (si plus d'une image) */}
+
                         <Show when={(data().images ?? []).length > 1}>
                           <div class="p-4 flex gap-4 overflow-x-auto">
                             {data().images?.map((image, index) => (
@@ -137,7 +134,7 @@ export default function ListingDetailPage() {
                       </div>
                     </Show>
                     
-                    {/* Description */}
+
                     <div class="p-6">
                         <div class="flex justify-between items-start mb-3">
                             <h2 class="text-xl font-semibold">Description</h2>

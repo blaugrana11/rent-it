@@ -29,22 +29,19 @@ export const listingSchema = z.object({
   condition: z.enum(["neuf", "comme neuf", "bon état", "état moyen", "mauvais état"]).optional(),
   images: z.union([
     z.array(z.string()),
-    z.string().transform(value => [value]) // Transforme une chaîne unique en tableau
+    z.string().transform(value => [value]) 
   ]).optional(),
   userId: z.string(),
   createdAt: z.date().optional(), 
 })
 
-// Mise à jour de la fonction getListings pour prendre en charge la recherche
 export const getListings = query(async (searchParams?: { query?: string | undefined, condition?: string | undefined, minPrice?: number | undefined, maxPrice?: number | undefined }) => {
   "use server";
   
   try {
     let filter: any = {};
     
-    // Construire le filtre de recherche si des paramètres sont fournis
     if (searchParams) {
-      // Recherche textuelle (dans le titre et la description)
       if (searchParams.query && searchParams.query.trim() !== '') {
         filter.$or = [
           { title: { $regex: searchParams.query, $options: 'i' } },
@@ -52,12 +49,10 @@ export const getListings = query(async (searchParams?: { query?: string | undefi
         ];
       }
       
-      // Filtre par état/condition
       if (searchParams.condition) {
         filter.condition = searchParams.condition;
       }
       
-      // Filtre par prix
       let priceFilter = {};
       if (searchParams.minPrice !== undefined) {
         priceFilter = { ...priceFilter, $gte: searchParams.minPrice };
@@ -71,7 +66,6 @@ export const getListings = query(async (searchParams?: { query?: string | undefi
       }
     }
     
-    // Exécuter la requête avec le filtre
     const rawData = await db_ads.find(filter).toArray();
     
     const data = getlistingSchema.array().parse(rawData);
@@ -87,10 +81,9 @@ export const getListings = query(async (searchParams?: { query?: string | undefi
   }
 }, "getListings");
 
-// Récupérer une annonce par son ID
 export const getListingById = query(async (id:string) => {
   "use server";
-  const objectId = new ObjectId(id); // Assurer que `id` est sous forme de string
+  const objectId = new ObjectId(id); 
   const rawData = await db_ads.findOne({ _id: objectId });
   if (!rawData) return null;
 
@@ -98,7 +91,7 @@ export const getListingById = query(async (id:string) => {
   return data;
 }, "getListingById");
 
-// Ajouter une annonce
+
 export const createListing = async (form: FormData) => {
   "use server";
   try {
@@ -110,7 +103,7 @@ export const createListing = async (form: FormData) => {
 
     const session = await getSession();
     if (!session.data.email) {
-      return null; // retour minimal : évite erreur de sérialisation
+      return null; // null pour empecher prblm de sérialisation
     }
 
     const user = await db_users.findOne({ email: session.data.email });
@@ -123,12 +116,12 @@ export const createListing = async (form: FormData) => {
       description,
       price,
       condition,
-      images: [], // temporairement vide
+      images: [],
       userId: user._id.toString(),
       createdAt: new Date(),
     };
 
-    // Valide les champs de base sans les images
+ 
     const validatedListing = listingSchema.parse(listingData);
 
     const imagePaths: string[] = [];
@@ -143,23 +136,22 @@ export const createListing = async (form: FormData) => {
       imagePaths.push(`/uploads/${fileName}`);
     }
 
-    // Ajoute les chemins d'image à l'annonce validée
+
     validatedListing.images = imagePaths;
 
-    // Insertion dans la base de données
+  
     await db_ads.insertOne(validatedListing);
 
-    // Ne retourne rien (ou juste un booléen)
     return { success: true };
   } catch (error) {
     console.error("Erreur dans createListing:", error);
-    return null; // Ne retourne pas l'erreur pour éviter la sérialisation
+    return null; // pour eviter les problèmes de sérialisation
   }
 };
 export const createListingAction = action(createListing, "createListing");
 
 
-// Mettre à jour une annonce
+
 export const updateListing = async (id: string, form: FormData) => {
   "use server";
 
@@ -167,19 +159,19 @@ export const updateListing = async (id: string, form: FormData) => {
   const existingListing = await db_ads.findOne({ _id: objectId });
   if (!existingListing) throw new Error("Annonce non trouvée");
 
-  // Extraire les champs texte du formulaire (sans images)
+
   const updateData = {
     title: form.has("title") ? String(form.get("title")) : existingListing.title,
     description: form.has("description") ? String(form.get("description")) : existingListing.description,
     price: form.has("price") ? Number(form.get("price")) : existingListing.price,
     condition: form.has("condition") ? String(form.get("condition")) : existingListing.condition,
-    images: existingListing.images, // Par défaut, on garde les anciennes images
+    images: existingListing.images, 
   };
 
-  //Valider les données AVANT d'uploader les images
+
   const validatedData = listingSchema.parse(updateData);
 
-  //Gérer les images UNIQUEMENT si la validation réussit
+
   const imageFiles = form.getAll("images") as File[];
   if (imageFiles.length > 0) {
     const imagePaths: string[] = [];
@@ -194,10 +186,10 @@ export const updateListing = async (id: string, form: FormData) => {
       imagePaths.push(`/uploads/${fileName}`);
     }
 
-    validatedData.images = imagePaths; // Remplacer les images uniquement après validation
+    validatedData.images = imagePaths; 
   }
 
-  // Mettre à jour l'annonce dans la base de données
+
   await db_ads.updateOne({ _id: objectId }, { $set: validatedData });
 
   return { message: "Annonce mise à jour", updateData: validatedData };
@@ -205,17 +197,16 @@ export const updateListing = async (id: string, form: FormData) => {
 
 export const updateListingAction = action(updateListing, "updateListing");
 
-// Supprimer une annonce
 export const deleteListing = async (id: string) => {
   "use server";
   console.log("ID reçu pour suppression:", id);
-  const objectId = new ObjectId(id); // Convertir `id` en ObjectId
+  const objectId = new ObjectId(id);
   const listing = await db_ads.findOne({ _id: objectId });
   
   if (listing?.images) {
     for (const imgPath of listing.images) {
       const filePath = path.join(process.cwd(), "public", imgPath);
-      await fs.unlink(filePath).catch(() => {}); // Supprime le fichier si existant
+      await fs.unlink(filePath).catch(() => {});
     }
   }
   const result = await db_ads.deleteOne({ _id: objectId });

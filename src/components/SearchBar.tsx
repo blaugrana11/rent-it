@@ -12,7 +12,7 @@ export default function SearchBar() {
   const [maxPrice, setMaxPrice] = createSignal(searchParams.maxPrice ?? "");
   const [showFilters, setShowFilters] = createSignal(false);
 
-  // Met à jour les paramètres dans l'URL quand un champ change
+
   const updateParams = () => {
     const params: Record<string, string> = {};
   
@@ -29,7 +29,7 @@ export default function SearchBar() {
     setSearchParams(params);
   };
 
-  // Réaction automatique au changement de n'importe quelle valeur
+
   createMemo(() => {
     query(); condition(); minPrice(); maxPrice();
     updateParams();
@@ -42,7 +42,7 @@ export default function SearchBar() {
     setCondition("");
     setMinPrice("");
     setMaxPrice("");
-    // Supprime tous les paramètres de l'URL
+
     navigate("/", { replace: true });
   };
 
