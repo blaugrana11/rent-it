@@ -2,10 +2,13 @@
 import Layout from "~/components/Layout";
 import RegisterForm from "~/components/RegisterForm";
 import { A } from "@solidjs/router";
+import { ErrorBoundary, Suspense } from "solid-js";
 
 export default function Register() {
   return (
     <Layout>
+      <ErrorBoundary fallback={<div class="text-red-500 text-center">An error occurred while loading the registration page.</div>}>
+      <Suspense fallback={<div class="text-center text-gray-500">Loading registration form...</div>}>
       <div class="min-h-screen bg-gray-50 flex items-center justify-center">
         <div class="flex flex-col md:flex-row w-full max-w-6xl bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
           <div class="w-full md:w-1/2 p-10 space-y-6">
@@ -32,6 +35,8 @@ export default function Register() {
           </div>
         </div>
       </div>
+      </Suspense>
+      </ErrorBoundary>
     </Layout>
   );
 }

@@ -1,10 +1,14 @@
 // src/routes/login.tsx
 import LoginForm from "~/components/LoginForm"
 import Layout from "~/components/Layout"
+import { ErrorBoundary, Suspense } from "solid-js"
 
 export default function LoginPage() {
   return (
+    
     <Layout>
+      <ErrorBoundary fallback={<div class="text-red-500 text-center">An error occurred while loading the login page.</div>}>
+      <Suspense fallback={<div class="text-center text-gray-500">Loading login form...</div>}>
       <div class="min-h-screen bg-gradient-to-br from-gray-100 to-indigo-100 flex items-center justify-center px-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-10 bg-white rounded-2xl shadow-2xl p-10 max-w-5xl w-full">
 
@@ -37,6 +41,8 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
+      </Suspense>
+      </ErrorBoundary>
     </Layout>
   )
 }

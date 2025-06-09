@@ -1,5 +1,5 @@
 import { useParams, createAsync, useAction } from "@solidjs/router";
-import { For, Show, Suspense, createSignal, createEffect } from "solid-js";
+import { For, Show, Suspense, ErrorBoundary, createSignal, createEffect } from "solid-js";
 import { getUserById, getUserListingsById } from "~/lib/auth/user";
 import type { RouteDefinition } from "@solidjs/router";
 import Layout from "~/components/Layout";
@@ -42,6 +42,7 @@ export default function ProfilePage() {
     <Layout protected>
       <div class="min-h-screen bg-gray-100 py-12">
         <div class="max-w-7xl mx-auto px-6">
+          <ErrorBoundary fallback={<div class="text-red-500 text-center">An error occurred while loading the profile.</div>}>
           <Suspense fallback={<p class="text-center text-gray-500">Loading profile...</p>}>
             <Show when={user()} fallback={<p class="text-center text-red-500">User not found</p>}>
               <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">
@@ -94,6 +95,7 @@ export default function ProfilePage() {
               </Show>
             </Show>
           </Suspense>
+          </ErrorBoundary>
         </div>
       </div>
     </Layout>

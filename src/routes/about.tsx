@@ -11,7 +11,7 @@ export default function AboutPage() {
         <h2 class="text-2xl font-semibold mb-2">What is Rent-It?</h2>
         <p>
           Rent-It is a fictional peer-to-peer rental platform. It allows users to
-          publish listings and rent everyday items easily — from tools to sports
+          publish listings and rent everyday items easily from tools to sports
           gear. Though not deployed in production, it simulates a complete rental
           experience.
         </p>
