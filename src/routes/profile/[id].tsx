@@ -15,15 +15,10 @@ export default function ProfilePage() {
 
   const user = createAsync(() => getUserById(userId()));
   
-
-  const [listings, setListings] = createSignal([]);
-
   const deleteAction = useAction(deleteListingAction);
 
+  const listings = createAsync(() =>getUserListingsById(userId()))
 
-  createEffect(() => {
-    getUserListingsById(userId()).then(setListings);
-  });
 
   const handleDelete = async (id: string) => {
     const confirmed = confirm("Are you sure you want to delete this listing?");
@@ -32,7 +27,6 @@ export default function ProfilePage() {
     const res = await deleteAction(id);
     console.log("Delete response:", res);
     if (res.message === "Annonce supprimée avec succès") {
-      setListings((prev) => prev.filter((l: any) => l._id !== id));
     } else {
       alert("Failed to delete listing.");
     }
@@ -49,15 +43,15 @@ export default function ProfilePage() {
                 {user()?.pseudo}'s Listings
               </h1>
 
-              <Show when={listings().length} fallback={
+              <Show when={listings} fallback={
                 <div class="text-center py-10">
                   <p class="text-xl text-gray-600">No ads published yet</p>
                   <p class="text-gray-500 mt-2">This user hasn't posted anything yet.</p>
                 </div>
               }>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  <For each={listings()}>
-                    {(listing: any) => (
+                  <For each={listings() || []}>
+                    {(listing) => (
                       <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 p-6 flex flex-col relative">
                         <h2 class="text-2xl font-semibold text-gray-900 mb-2">{listing.title}</h2>
                         <p class="text-gray-600 flex-1">{listing.description}</p>
@@ -70,7 +64,7 @@ export default function ProfilePage() {
                           )}
                         </div>
 
-                        {listing.images?.length > 0 && (
+                        {listing.images && (
                           <div class="mt-4 grid grid-cols-2 gap-3">
                             {listing.images.slice(0, 4).map((img: string, i: number) => (
                               <img
