@@ -1,32 +1,34 @@
-# SolidStart
+# RentIt – Web App for Renting Anything
 
-Everything you need to build a Solid project, powered by [`solid-start`](https://start.solidjs.com);
+**RentIt** is a modern full-stack web application that allows users to post and browse rental listings for all types of items — from power tools to cars, and everything in between.
 
-## Creating a project
+This project was built using **SolidJS** with **SolidStart**, and includes features like session-based authentication, API routing, and a dynamic UI for posting and viewing rental listings.
 
-```bash
-# create a new project in the current directory
-npm init solid@latest
+---
 
-# create a new project in my-app
-npm init solid@latest my-app
-```
+## 🔧 Features
 
-## Developing
+- 🔐 **Authentication** using session cookies
+- 🍪 **Session management** with secure cookies
+- 📦 **Full API integration** for CRUD operations
+- 🛠️ Post and manage **rental listings** (any object, small or large)
+- 🔍 Browse available items from other users
+- 🎥 **Demo video** included below
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+---
 
-```bash
-npm run dev
+## 🚀 Tech Stack
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+- **Frontend:** SolidJS + SolidStart
+- **Authentication:** Session-based with secure cookies
+- **Backend:** API routes (within SolidStart)
+- **Styling:** (Add if you used Tailwind, SCSS, etc.)
+- **Other tools:** (Zod, MongoDB)
 
-## Building
+---
 
-Solid apps are built with _presets_, which optimise your project for deployment to different environments.
+## 📽 Demo
 
-By default, `npm run build` will generate a Node app that you can run with `npm start`. To use a different preset, add it to the `devDependencies` in `package.json` and specify in your `app.config.js`.
+Check out the demo video to see RentIt in action:
+https://github.com/user-attachments/assets/6a331d5e-6384-4c03-b964-c04ff8a480b2
 
-## This project was created with the [Solid CLI](https://solid-cli.netlify.app)
