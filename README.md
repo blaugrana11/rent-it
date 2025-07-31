@@ -22,13 +22,13 @@ This project was built using **SolidJS** with **SolidStart**, and includes featu
 - **Frontend:** SolidJS + SolidStart
 - **Authentication:** Session-based with secure cookies
 - **Backend:** API routes (within SolidStart)
-- **Styling:** (Add if you used Tailwind, SCSS, etc.)
+- **Styling:** (Tailwind CSS)
 - **Other tools:** (Zod, MongoDB)
 
 ---
 
 ## 📽 Demo
 
-Check out the demo video to see RentIt in action:
+Check out the demo video to see Rent It in action:
 https://github.com/user-attachments/assets/6a331d5e-6384-4c03-b964-c04ff8a480b2
 
