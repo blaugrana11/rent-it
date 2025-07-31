@@ -1,6 +1,6 @@
-# RentIt – Web App for Renting Anything
+# Rent It – Web App for Renting Anything
 
-**RentIt** is a modern full-stack web application that allows users to post and browse rental listings for all types of items — from power tools to cars, and everything in between.
+**Rent It** is a modern full-stack web application that allows users to post and browse rental listings for all types of items — from power tools to cars, and everything in between.
 
 This project was built using **SolidJS** with **SolidStart**, and includes features like session-based authentication, API routing, and a dynamic UI for posting and viewing rental listings.
 
